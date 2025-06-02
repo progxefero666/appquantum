@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppSpyder - Scientific Learning Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css', v=last_updated) }}">
+</head>
+<body>
+    <div class="header">
+        <h1>AppSpyder - Scientific Learning Platform</h1>
+        <div class="module-buttons" id="module-buttons-container">
+            <!-- Los botones de los módulos se generarán aquí -->
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel" id="left-controls-panel">
+            <!-- Home Panel (Default) -->
+            <div id="home-panel" class="module-panel">
+                <div class="module-title">Home</div>
+                <p>Welcome to AppSpyder! Explore different scientific modules.</p>
+            </div>
+
+            <!-- Circuits Module -->
+            <div id="circuits-panel" class="module-panel hidden">
+                <div class="module-title">Quantum Circuits</div>
+                
+                <label>Available Circuits:</label>
+                <select id="circuits-select" class="file-select" onchange="selectCircuit()">
+                    <option value="">Select a circuit file...</option>
+                </select>
+                
+                <div class="button-group">
+                    <button id="load-circuit-btn" class="btn" onclick="loadCircuit()" disabled>Load Circuit</button>
+                    <button id="execute-circuit-btn" class="btn" onclick="executeCircuit()" disabled>Execute</button>
+                </div>
+                
+                <label>Circuit Code:</label>
+                <div id="circuit-code" class="code-display">Select a circuit file to view its code.</div>
+            </div>
+
+            <!-- Graphics Module -->
+            <div id="graphics-panel" class="module-panel hidden">
+                <div class="module-title">Mathematical Graphics</div>
+                
+                <label>Available Plots:</label>
+                <div id="graphics-list" class="file-list"></div>
+                
+                <div class="button-group">
+                    <button id="load-graphics-btn" class="btn" onclick="loadGraphics()" disabled>Load Script</button>
+                    <button id="execute-graphics-btn" class="btn" onclick="executeGraphics()" disabled>Generate Plot</button>
+                </div>
+                
+                <label>Script Code:</label>
+                <div id="graphics-code" class="code-display">Select a graphics script to view its code.</div>
+            </div>
+
+            <!-- Elements Module -->
+            <div id="elements-panel" class="module-panel hidden">
+                <div class="module-title">Periodic Elements</div>
+                
+                <div class="filter-group">
+                    <div class="filter-row">
+                        <label>Search:</label>
+                        <input type="text" id="elements-search" placeholder="Element name or symbol..." onkeyup="filterElements()">
+                    </div>
+                    <div class="filter-row">
+                        <label>Category:</label>
+                        <select id="elements-category" onchange="filterElements()">
+                            <option>All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-row">
+                        <label>Period:</label>
+                        <select id="elements-period" onchange="filterElements()">
+                            <option>All Periods</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <label>Elements:</label>
+                <div id="elements-list" class="elements-list"></div>
+                
+                <label>Element Details:</label>
+                <div id="element-details" class="element-details">Select an element to see details.</div>
+            </div>
+
+            <!-- Waves Module -->
+            <div id="waves-panel" class="module-panel hidden">
+                <div class="module-title">Quantum Waves</div>
+                
+                <div class="filter-group">
+                    <div class="filter-row">
+                        <label>Frequency (Hz):</label>
+                        <input type="number" id="wave-frequency" value="1" min="0.1" max="10" step="0.1">
+                    </div>
+                    <div class="filter-row">
+                        <label>Amplitude:</label>
+                        <input type="number" id="wave-amplitude" value="1" min="0.1" max="5" step="0.1">
+                    </div>
+                    <div class="filter-row">
+                        <label>Phase (π):</label>
+                        <input type="number" id="wave-phase" value="0" min="0" max="2" step="0.1">
+                    </div>
+                    <div class="filter-row">
+                        <label>Wave Type:</label>
+                        <select id="wave-type">
+                            <option value="sine">Sine Wave</option>
+                            <option value="cosine">Cosine Wave</option>
+                            <option value="square">Square Wave</option>
+                            <option value="probability">Probability Wave</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn" onclick="generateWave()">Generate Wave</button>
+                    <button class="btn" onclick="clearWaves()">Clear</button>
+                </div>
+                
+                <label>Wave Parameters:</label>
+                <div id="wave-info" class="code-display">Configure parameters above and click Generate Wave.</div>
+            </div>
+
+            <!-- Pandas Module -->
+            <div id="pandas-panel" class="module-panel hidden">
+                <div class="module-title">Data Analysis</div>
+                
+                <label>Scientific Datasets:</label>
+                <select id="dataset-select" onchange="selectDataset()">
+                    <option value="">Select a dataset...</option>
+                    <option value="sample_data">Sample Data (General)</option>
+                    <option value="sales_data">Sales Analysis Data</option>
+                    <option value="scientific_data">Scientific Measurements Data</option>
+                </select>
+                
+                <div class="filter-group">
+                    <div class="filter-row">
+                        <label>Analysis Type:</label>
+                        <select id="analysis-type" onchange="autoAnalyze()">
+                            <option value="describe">Statistical Summary</option>
+                            <option value="correlation">Correlation Analysis</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="boxplot">Box Plot</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="load-dataset-btn" class="btn" onclick="loadDataset()" disabled>Load Dataset</button>
+                    <button id="analyze-btn" class="btn" onclick="analyzeData()" disabled>Analyze</button>
+                </div>
+                
+                <label>Data Preview:</label>
+                <div id="data-preview" class="code-display data-preview">Select a dataset to preview the data.</div>
+            </div>
+
+            <!-- Mathematical Tools Module -->
+            <div id="math-tools-panel" class="module-panel hidden">
+                <div class="module-title">Mathematical Tools</div>
+                
+                <div class="tool-section">
+                    <h3>Matrix Operations</h3>
+                    
+                    <div class="filter-group">
+                        <div class="filter-row">
+                            <label>Matrix Type:</label>
+                            <select id="matrix-type">
+                                <option value="random">Random Matrix</option>
+                                <option value="identity">Identity Matrix</option>
+                                <option value="symmetric">Symmetric Matrix</option>
+                                <option value="diagonal">Diagonal Matrix</option>
+                                <option value="orthogonal">Orthogonal Matrix</option>
+                                <option value="zeros">Zero Matrix</option>
+                                <option value="ones">Ones Matrix</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-row">
+                            <label>Size:</label>
+                            <input type="number" id="matrix-size" value="3" min="2" max="8">
+                        </div>
+                        
+                        <div class="filter-row">
+                            <label>Operation:</label>
+                            <select id="matrix-operation">
+                                <option value="eigenvalues">Eigenvalues & Eigenvectors</option>
+                                <option value="svd">Singular Value Decomposition</option>
+                                <option value="determinant">Determinant</option>
+                                <option value="inverse">Matrix Inverse</option>
+                                <option value="rank">Matrix Rank</option>
+                                <option value="condition">Condition Number</option>
+                                <option value="trace">Matrix Trace</option>
+                                <option value="norm">Matrix Norms</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button onclick="createMatrix()" class="action-btn">Create Matrix</button>
+                        <button onclick="analyzeMatrix()" class="action-btn" id="analyze-matrix-btn" disabled>Analyze Matrix</button>
+                    </div>
+                    
+                    <div id="matrix-preview" class="data-preview">
+                        Create a matrix to see its properties and perform operations.
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3>Graph Theory</h3>
+                    
+                    <div class="filter-group">
+                        <div class="filter-row">
+                            <label>Graph Type:</label>
+                            <select id="graph-type">
+                                <option value="random">Random Graph</option>
+                                <option value="complete">Complete Graph</option>
+                                <option value="cycle">Cycle Graph</option>
+                                <option value="path">Path Graph</option>
+                                <option value="star">Star Graph</option>
+                                <option value="wheel">Wheel Graph</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-row">
+                            <label>Nodes:</label>
+                            <input type="number" id="graph-nodes" value="5" min="3" max="10">
+                        </div>
+                        
+                        <div class="filter-row" id="probability-row">
+                            <label>Edge Probability:</label>
+                            <input type="number" id="edge-probability" value="0.3" min="0" max="1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button onclick="createGraph()" class="action-btn">Create Graph</button>
+                        <button onclick="analyzeGraph()" class="action-btn" id="analyze-graph-btn" disabled>Analyze Graph</button>
+                    </div>
+                    
+                    <div id="graph-preview" class="data-preview">
+                        Create a graph to see its structure and properties.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notebooks Module -->
+            <div id="notebooks-panel" class="module-panel" style="display: none;">
+                <h2>📚 Notebooks (.py Scripts)</h2>
+                <div class="controls">
+                    <select id="notebookFileSelect" class="file-select" onchange="selectNotebook(this.value)">
+                        <option value="">Select a Notebook Script...</option>
+                    </select>
+                    <button class="btn" onclick="executeNotebook()">Run Notebook</button>
+                </div>
+                <div class="output-areas">
+                    <div class="code-display-container">
+                        <h3>Notebook Code:</h3>
+                        <div id="notebook-code-display" class="code-display">
+                            <!-- El código del notebook se mostrará aquí -->
+                            Select a notebook to view its code.
+                        </div>
+                    </div>
+                    <div class="results-container">
+                        <h3>Output & Plot:</h3>
+                        <div id="notebook-stdout-output" class="code-output">
+                            <!-- El stdout del notebook se mostrará aquí -->
+                        </div>
+                        <div id="notebook-plot-container" class="plot-output">
+                            <!-- El gráfico del notebook se mostrará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel" id="results-panel">
+            <h2 class="results-title">Results / Visualization</h2>
+            <div id="results-content">
+                <!-- Los resultados se mostrarán aquí -->
+                <p>Select a module and an action to see results.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('SCRIPT START');
+        let currentModuleId = 'home';
+        let selectedCircuit = null;
+        let selectedGraphics = null;
+        let selectedElement = null;
+        let selectedDataset = null;
+        let currentMatrix = null;
+        let currentGraphMatrix = null;
+        let selectedNotebook = null;
+        let allElements = [];
+
+        // --- Funciones de Módulos (deben definirse ANTES de MODULES_CONFIG) ---
+        function loadCircuitFiles() {
+            console.log("loadCircuitFiles called");
+             fetch('/api/circuits/files')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('circuits-select');
+                    select.innerHTML = ''; // Limpiar opciones previas
+                    
+                    if (data.success && data.files && data.files.length > 0) {
+                        data.files.forEach((file, index) => {
+                            const option = document.createElement('option');
+                            option.value = file;
+                            option.textContent = file;
+                            select.appendChild(option);
+                        });
+                        // Seleccionar el primero por defecto y cargar su código
+                        if (data.files.length > 0) {
+                            select.value = data.files[0];
+                            selectCircuit(); // Llama a selectCircuit para manejar la carga inicial
+                        }
+                        document.getElementById('load-circuit-btn').disabled = !data.files[0];
+                        document.getElementById('execute-circuit-btn').disabled = !data.files[0];
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = data.error || "No circuit files found.";
+                        select.appendChild(option);
+                        document.getElementById('circuit-code').innerHTML = data.error || 'No circuit files found in public/circuits.';
+                        document.getElementById('load-circuit-btn').disabled = true;
+                        document.getElementById('execute-circuit-btn').disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading circuit files:', error);
+                    const select = document.getElementById('circuits-select');
+                    select.innerHTML = '<option value="">Error loading files</option>';
+                    document.getElementById('circuit-code').innerHTML = 'Network error when trying to load circuit files.';
+                    document.getElementById('load-circuit-btn').disabled = true;
+                    document.getElementById('execute-circuit-btn').disabled = true;
+                });
+        }
+        function selectCircuit() {
+            const select = document.getElementById('circuits-select');
+            selectedCircuit = select.value;
+            const loadBtn = document.getElementById('load-circuit-btn');
+            const execBtn = document.getElementById('execute-circuit-btn');
+
+            if (selectedCircuit) {
+                loadBtn.disabled = false;
+                execBtn.disabled = false;
+                loadCircuitCode(selectedCircuit);
+            } else {
+                loadBtn.disabled = true;
+                execBtn.disabled = true;
+                document.getElementById('circuit-code').innerHTML = 'Select a circuit file to view its code.';
+            }
+        }
+        function loadCircuitCode(filename) {
+            if (!filename) return;
+            fetch(`/api/circuits/load/${filename}`)
+                .then(response => response.json())
+                .then(data => {
+                    const codeDisplay = document.getElementById('circuit-code');
+                    if (data.success) {
+                        codeDisplay.innerHTML = data.formatted_content || data.content;
+                    } else {
+                        codeDisplay.textContent = 'Error loading file: ' + data.error;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('circuit-code').textContent = 'Error loading circuit code: ' + error;
+                });
+        }
+        function executeCircuit() {
+            if (!selectedCircuit) return;
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Executing circuit...</div>';
+            
+            fetch(`/api/circuits/execute/${selectedCircuit}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = '';
+                        
+                        if (data.circuit_info) {
+                            html += `<div class="result-text">${data.circuit_info}</div>`;
+                        }
+                        
+                        if (data.circuit_image) {
+                            html += `<img src="data:image/png;base64,${data.circuit_image}" class="result-image" alt="Circuit Diagram">`;
+                        }
+                        
+                        if (data.histogram_image) {
+                            html += `<img src="data:image/png;base64,${data.histogram_image}" class="result-image" alt="Measurement Results" style="margin-top: 20px;">`;
+                        }
+                        
+                        if (data.result_image) {
+                            html += `<img src="data:image/png;base64,${data.result_image}" class="result-image" alt="Execution Results">`;
+                        }
+                        
+                        if (data.result_text) {
+                            html += `<div class="result-text">${data.result_text}</div>`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error executing circuit:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function loadGraphicsFiles() {
+            console.log("loadGraphicsFiles called");
+            const listDiv = document.getElementById('graphics-list');
+            listDiv.innerHTML = '<div class="loading">Loading graphics scripts...</div>';
+            selectedGraphics = null;
+            document.getElementById('load-graphics-btn').disabled = true;
+            document.getElementById('execute-graphics-btn').disabled = true;
+            document.getElementById('graphics-code').innerHTML = 'Select a script and click "Load Script".';
+
+            fetch('/api/graphics/files')
+                .then(response => response.json())
+                .then(data => {
+                    listDiv.innerHTML = ''; 
+                    if (data.success && data.files && data.files.length > 0) {
+                        data.files.forEach(file => {
+                            const item = document.createElement('div');
+                            item.className = 'file-item';
+                            item.textContent = file;
+                            item.onclick = () => selectGraphics(file, item);
+                            listDiv.appendChild(item);
+                        });
+                    } else {
+                        listDiv.innerHTML = `<div class="file-item">${data.error || 'No graphics files found.'}</div>`;
+                    }
+                })
+                .catch(error => {
+                    listDiv.innerHTML = '<div class="file-item">Network error loading files.</div>';
+                    console.error('Error loading graphics files:', error);
+                });
+        }
+        function selectGraphics(filename, element) {
+            selectedGraphics = filename;
+            console.log('[DEBUG-GFX-SELECT] selectGraphics called. selectedGraphics set to:', selectedGraphics);
+            
+            document.querySelectorAll('#graphics-list .file-item').forEach(item => item.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const loadBtn = document.getElementById('load-graphics-btn');
+            loadBtn.disabled = false;
+            console.log('[DEBUG-GFX-SELECT] Load Script button enabled state:', loadBtn.disabled);
+        }
+        function loadGraphics() {
+            console.log('[DEBUG-GFX-LOAD] loadGraphics called. Current selectedGraphics:', selectedGraphics);
+            if (!selectedGraphics) {
+                console.error('[DEBUG-GFX-LOAD] selectedGraphics is not set in loadGraphics. Aborting.');
+                return;
+            }
+            
+            fetch(`/api/graphics/load/${selectedGraphics}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('graphics-code').textContent = data.content;
+                        const executeBtn = document.getElementById('execute-graphics-btn');
+                        executeBtn.disabled = false;
+                        console.log('[DEBUG-GFX-LOAD] Generate Plot button enabled state:', executeBtn.disabled);
+                    } else {
+                        document.getElementById('graphics-code').textContent = 'Error loading file: ' + data.error;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading graphics:', error);
+                    document.getElementById('graphics-code').textContent = 'Error loading graphics: ' + error;
+                });
+        }
+        function loadElements() {
+            console.log("loadElements called");
+            fetch('/api/elements/all')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allElements = data.elements;
+                        populateFilters();
+                        displayElements(allElements);
+                    } else {
+                        console.error('Error loading elements:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading elements:', error);
+                });
+        }
+        function populateFilters() {
+            const categories = new Set();
+            const periods = new Set();
+            
+            allElements.forEach(element => {
+                if (element.category) categories.add(element.category);
+                if (element.period) periods.add(element.period);
+            });
+            
+            const categorySelect = document.getElementById('elements-category');
+            categorySelect.innerHTML = '<option>All Categories</option>';
+            Array.from(categories).sort().forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+            
+            const periodSelect = document.getElementById('elements-period');
+            periodSelect.innerHTML = '<option>All Periods</option>';
+            Array.from(periods).sort((a, b) => a - b).forEach(period => {
+                const option = document.createElement('option');
+                option.value = `Period ${period}`;
+                option.textContent = `Period ${period}`;
+                periodSelect.appendChild(option);
+            });
+        }
+        function filterElements() {
+            const searchTerm = document.getElementById('elements-search').value.toLowerCase();
+            const selectedCategory = document.getElementById('elements-category').value;
+            const selectedPeriod = document.getElementById('elements-period').value;
+            
+            const filtered = allElements.filter(element => {
+                const nameMatch = element.name && element.name.toLowerCase().includes(searchTerm);
+                const symbolMatch = element.symbol && element.symbol.toLowerCase().includes(searchTerm);
+                const matchesSearch = !searchTerm || nameMatch || symbolMatch;
+                
+                const matchesCategory = selectedCategory === 'All Categories' || element.category === selectedCategory;
+                
+                const matchesPeriod = selectedPeriod === 'All Periods' || 
+                                     `Period ${element.period}` === selectedPeriod;
+                
+                return matchesSearch && matchesCategory && matchesPeriod;
+            });
+            
+            displayElements(filtered);
+        }
+        function displayElements(elements) {
+            const listDiv = document.getElementById('elements-list');
+            listDiv.innerHTML = '';
+            
+            elements.forEach(element => {
+                const item = document.createElement('div');
+                item.className = 'element-item';
+                item.textContent = `${element.atomic_number.toString().padStart(3, ' ')} - ${element.symbol.padEnd(2, ' ')} - ${element.name}`;
+                item.onclick = () => selectElement(element, item);
+                listDiv.appendChild(item);
+            });
+        }
+        function selectElement(element, elementDiv) {
+            selectedElement = element;
+            
+            document.querySelectorAll('#elements-list .element-item').forEach(item => item.classList.remove('selected'));
+            elementDiv.classList.add('selected');
+            
+            const details = `Element Details:
+Name: ${element.name || 'N/A'}
+Symbol: ${element.symbol || 'N/A'}
+Atomic Number: ${element.atomic_number || 'N/A'}
+Atomic Weight: ${element.atomic_weight || 'N/A'}
+Category: ${element.category || 'N/A'}
+Period: ${element.period || 'N/A'}
+Group: ${element.group || 'N/A'}
+Electronic Configuration: ${element.electron_configuration || 'N/A'}
+Electronegativity: ${element.electronegativity || 'N/A'}
+Melting Point: ${element.melting_point || 'N/A'} K
+Boiling Point: ${element.boiling_point || 'N/A'} K
+Density: ${element.density || 'N/A'} g/cm³`;
+            
+            document.getElementById('element-details').textContent = details;
+            
+            visualizeElement(element.atomic_number);
+        }
+        function visualizeElement(atomicNumber) {
+            document.getElementById('results-content').innerHTML = '<div class="loading">Generating element visualization...</div>';
+            
+            fetch(`/api/elements/visualize/${atomicNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h3>Element Analysis: ${data.element.name}</h3>`;
+                        
+                        if (data.visualization) {
+                            html += `<img src="data:image/png;base64,${data.visualization}" class="result-image" alt="Element Visualization">`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error visualizing element:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function generateWave() {
+            const frequency = document.getElementById('wave-frequency').value;
+            const amplitude = document.getElementById('wave-amplitude').value;
+            const phase = document.getElementById('wave-phase').value;
+            const waveType = document.getElementById('wave-type').value;
+            
+            const params = {
+                frequency: parseFloat(frequency),
+                amplitude: parseFloat(amplitude), 
+                phase: parseFloat(phase),
+                wave_type: waveType
+            };
+            
+            document.getElementById('wave-info').textContent = `Wave Parameters:
+Frequency: ${frequency} Hz
+Amplitude: ${amplitude}
+Phase: ${phase}π
+Type: ${waveType.charAt(0).toUpperCase() + waveType.slice(1)} Wave`;
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Generating quantum wave visualization...</div>';
+            
+            fetch('/api/waves/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(params)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h3>Quantum Wave: ${waveType}</h3>`;
+                        
+                        if (data.plot_image) {
+                            html += `<img src="data:image/png;base64,${data.plot_image}" class="result-image" alt="Wave Visualization">`;
+                        }
+                        
+                        if (data.info_text) {
+                            html += `<div class="result-text">${data.info_text}</div>`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating wave:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function clearWaves() {
+            document.getElementById('results-content').innerHTML = '<div class="loading">Select wave parameters and click Generate Wave to see visualization.</div>';
+            document.getElementById('wave-info').textContent = 'Configure parameters above and click Generate Wave.';
+        }
+        function selectDataset() {
+            const dataset = document.getElementById('dataset-select').value;
+            const loadBtn = document.getElementById('load-dataset-btn');
+            
+            if (dataset) {
+                loadBtn.disabled = false;
+                loadDataset();
+            } else {
+                loadBtn.disabled = true;
+                document.getElementById('analyze-btn').disabled = true;
+                document.getElementById('data-preview').textContent = 'Select a dataset to preview the data.';
+            }
+        }
+        function loadDataset() {
+            const dataset = document.getElementById('dataset-select').value;
+            
+            if (!dataset) {
+                return;
+            }
+            
+            document.getElementById('data-preview').innerHTML = '<div class="loading">Loading dataset...</div>';
+            
+            fetch(`/api/pandas/load/${dataset}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('data-preview').innerHTML = data.preview;
+                        document.getElementById('analyze-btn').disabled = false;
+                        autoAnalyze();
+                    } else {
+                        document.getElementById('data-preview').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading dataset:', error);
+                    document.getElementById('data-preview').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function autoAnalyze() {
+            const dataset = document.getElementById('dataset-select').value;
+            const analysisType = document.getElementById('analysis-type').value;
+            
+            if (dataset && analysisType) {
+                analyzeData();
+            }
+        }
+        function analyzeData() {
+            const dataset = document.getElementById('dataset-select').value;
+            const analysisType = document.getElementById('analysis-type').value;
+            
+            if (!dataset) {
+                return;
+            }
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Performing data analysis...</div>';
+            
+            fetch(`/api/pandas/analyze/${dataset}/${analysisType}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h3>Analysis: ${analysisType}</h3>`;
+                        
+                        if (data.plot_image) {
+                            html += `<img src="data:image/png;base64,${data.plot_image}" class="result-image" alt="Data Analysis">`;
+                        }
+                        
+                        if (data.summary) {
+                            html += `<div class="result-text"><h4>Statistical Summary:</h4><pre>${data.summary}</pre></div>`;
+                        }
+                        
+                        if (data.info_text) {
+                            html += `<div class="result-text">${data.info_text}</div>`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error analyzing data:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function createMatrix() {
+            const matrixType = document.getElementById('matrix-type').value;
+            const size = parseInt(document.getElementById('matrix-size').value);
+            
+            document.getElementById('matrix-preview').innerHTML = '<div class="loading">Creating matrix...</div>';
+            
+            fetch('/api/math/matrix/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    matrix_type: matrixType,
+                    size: size
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentMatrix = data.matrix;
+                        
+                        let html = `<h4>${matrixType.charAt(0).toUpperCase() + matrixType.slice(1)} Matrix (${size}x${size})</h4>`;
+                        html += '<table class="matrix-table">';
+                        
+                        for (let i = 0; i < data.matrix.length; i++) {
+                            html += '<tr>';
+                            for (let j = 0; j < data.matrix[i].length; j++) {
+                                const value = typeof data.matrix[i][j] === 'number' ? 
+                                            data.matrix[i][j].toFixed(3) : data.matrix[i][j];
+                                html += `<td>${value}</td>`;
+                            }
+                            html += '</tr>';
+                        }
+                        html += '</table>';
+                        
+                        document.getElementById('matrix-preview').innerHTML = html;
+                        document.getElementById('analyze-matrix-btn').disabled = false;
+                    } else {
+                        document.getElementById('matrix-preview').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating matrix:', error);
+                    document.getElementById('matrix-preview').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function analyzeMatrix() {
+            if (!currentMatrix) {
+                return;
+            }
+            
+            const operation = document.getElementById('matrix-operation').value;
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Analyzing matrix...</div>';
+            
+            fetch('/api/math/matrix/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    matrix: currentMatrix,
+                    operation: operation
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h3>Matrix Analysis: ${operation}</h3>`;
+                        
+                        if (data.visualization) {
+                            html += `<img src="data:image/png;base64,${data.visualization}" class="result-image" alt="Matrix Analysis">`;
+                        }
+                        
+                        if (data.description) {
+                            html += `<div class="result-text"><h4>Results:</h4><p>${data.description}</p></div>`;
+                        }
+                        
+                        if (data.eigenvalues) {
+                            html += `<div class="result-text"><h4>Eigenvalues:</h4><pre>${JSON.stringify(data.eigenvalues, null, 2)}</pre></div>`;
+                        }
+                        
+                        if (data.singular_values) {
+                            html += `<div class="result-text"><h4>Singular Values:</h4><pre>${JSON.stringify(data.singular_values, null, 2)}</pre></div>`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error analyzing matrix:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function createGraph() {
+            const graphType = document.getElementById('graph-type').value;
+            const numNodes = parseInt(document.getElementById('graph-nodes').value);
+            const probability = parseFloat(document.getElementById('edge-probability').value);
+            
+            document.getElementById('graph-preview').innerHTML = '<div class="loading">Creating graph...</div>';
+            
+            const requestData = {
+                graph_type: graphType,
+                num_nodes: numNodes
+            };
+            
+            if (graphType === 'random') {
+                requestData.probability = probability;
+            }
+            
+            fetch('/api/math/graph/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentGraphMatrix = data.adjacency_matrix;
+                        
+                        let html = `<h4>${graphType.charAt(0).toUpperCase() + graphType.slice(1)} Graph</h4>`;
+                        html += `<p>Nodes: ${data.num_nodes}, Edges: ${data.num_edges}</p>`;
+                        
+                        document.getElementById('graph-preview').innerHTML = html;
+                        document.getElementById('analyze-graph-btn').disabled = false;
+                    } else {
+                        document.getElementById('graph-preview').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating graph:', error);
+                    document.getElementById('graph-preview').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function analyzeGraph() {
+            if (!currentGraphMatrix) {
+                return;
+            }
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Analyzing graph...</div>';
+            
+            fetch('/api/math/graph/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    adjacency_matrix: currentGraphMatrix
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h3>Graph Analysis</h3>`;
+                        
+                        if (data.visualization) {
+                            html += `<img src="data:image/png;base64,${data.visualization}" class="result-image" alt="Graph Analysis">`;
+                        }
+                        
+                        if (data.properties) {
+                            const props = data.properties;
+                            html += `<div class="result-text"><h4>Graph Properties:</h4>`;
+                            html += `<p>Nodes: ${props.num_nodes}</p>`;
+                            html += `<p>Edges: ${props.num_edges}</p>`;
+                            html += `<p>Density: ${props.density.toFixed(3)}</p>`;
+                            html += `<p>Connected: ${props.is_connected}</p>`;
+                            html += `<p>Average Degree: ${props.average_degree.toFixed(2)}</p>`;
+                            html += `</div>`;
+                        }
+                        
+                        if (data.shortest_paths && data.shortest_paths.diameter > 0) {
+                            html += `<div class="result-text"><h4>Distance Properties:</h4>`;
+                            html += `<p>Diameter: ${data.shortest_paths.diameter}</p>`;
+                            html += `<p>Average Distance: ${data.shortest_paths.average_distance.toFixed(2)}</p>`;
+                            html += `</div>`;
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        document.getElementById('results-content').innerHTML = `<div class="error">Error: ${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error analyzing graph:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+                });
+        }
+        function loadNotebookFiles() {
+            console.log('[NBK] loadNotebookFiles called');
+            const selectElement = document.getElementById('notebookFileSelect');
+            selectElement.innerHTML = '<option value="">Loading notebook files...</option>'; // Feedback visual
+            document.getElementById('notebook-code-display').innerHTML = 'Select a notebook to view its code.';
+            document.getElementById('notebook-stdout-output').innerHTML = '';
+            document.getElementById('notebook-plot-container').innerHTML = '';
+            selectedNotebook = null;
+
+            fetch('/api/notebooks/files')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.files && data.files.length > 0) {
+                        selectElement.innerHTML = '<option value="">Select a Notebook Script...</option>';
+                        data.files.forEach(file => {
+                            const option = document.createElement('option');
+                            option.value = file;
+                            option.textContent = file;
+                            selectElement.appendChild(option);
+                        });
+                    } else if (data.success && data.files && data.files.length === 0) {
+                        selectElement.innerHTML = '<option value="">No notebook scripts found.</option>';
+                         document.getElementById('notebook-code-display').innerHTML = 'No notebook scripts found in /public/notebooks/. Add some .py files there.';
+                    } else {
+                        selectElement.innerHTML = '<option value="">Error loading files.</option>';
+                        showError(document.getElementById('notebook-code-display'), data.error || 'Could not load notebook files.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notebook files:', error);
+                    selectElement.innerHTML = '<option value="">Error loading files.</option>';
+                    showError(document.getElementById('notebook-code-display'), 'Network error or server issue fetching notebook files.');
+                });
+        }
+        function selectNotebook(filename) {
+            if (!filename) {
+                selectedNotebook = null;
+                document.getElementById('notebook-code-display').innerHTML = 'Select a notebook to view its code.';
+                document.getElementById('notebook-stdout-output').innerHTML = '';
+                document.getElementById('notebook-plot-container').innerHTML = '';
+                return;
+            }
+            console.log('[NBK] selectNotebook called with:', filename);
+            selectedNotebook = filename; // Guardar el nombre del archivo seleccionado
+            loadNotebookCode(filename);
+        }
+        function loadNotebookCode(filename) {
+            if (!filename) return;
+            console.log('[NBK] loadNotebookCode called for:', filename);
+            const codeDisplay = document.getElementById('notebook-code-display');
+            showLoading(codeDisplay, 'Loading notebook code...');
+
+            fetch(`/api/notebooks/load/${encodeURIComponent(filename)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.formatted_content) {
+                        codeDisplay.innerHTML = data.formatted_content; // Pygments ya devuelve HTML <pre><code>...</code></pre>
+                    } else {
+                        showError(codeDisplay, data.error || `Could not load code for ${filename}.`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notebook code:', error);
+                    showError(codeDisplay, `Failed to load code for ${filename}. ${error.message}`);
+                });
+        }
+        function executeNotebook() {
+            console.log('[NBK] executeNotebook called. Selected notebook:', selectedNotebook);
+            if (!selectedNotebook) {
+                showError(document.getElementById('notebook-stdout-output'), 'Please select a notebook script first.');
+                return;
+            }
+
+            const stdoutOutput = document.getElementById('notebook-stdout-output');
+            const localPlotContainer = document.getElementById('notebook-plot-container'); // Contenedor de plot dentro del panel del notebook
+            const mainResultsContainer = document.getElementById('results-content'); // Panel de resultados principal
+            
+            showLoading(stdoutOutput, `Executing ${selectedNotebook}...`);
+            localPlotContainer.innerHTML = ''; // Limpiar el contenedor de plot local
+            mainResultsContainer.innerHTML = '<div class="loading">Executing notebook, please wait...</div>'; // Feedback en el panel principal
+
+            fetch(`/api/notebooks/execute/${encodeURIComponent(selectedNotebook)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        stdoutOutput.innerHTML = data.stdout || '<p>No standard output produced.</p>';
+                        if (data.image) {
+                            mainResultsContainer.innerHTML = `<img src="data:image/png;base64,${data.image}" class="result-image" alt="Notebook Plot" />`;
+                            localPlotContainer.innerHTML = '<p>Plot displayed in the main Results / Visualization panel.</p>'; 
+                        } else {
+                            mainResultsContainer.innerHTML = '<p>No plot generated by the script.</p>';
+                            localPlotContainer.innerHTML = ''; // Limpiar si no hay plot
+                        }
+                    } else {
+                        if (data.stdout) { // Si hay stdout (puede contener un traceback parcial)
+                             stdoutOutput.innerHTML = data.stdout;
+                        } else { // Si no hay stdout, mostrar el error general en el área de stdout
+                            showError(stdoutOutput, data.error || `Error executing ${selectedNotebook}.`);
+                        }
+                        // Mostrar el error también en el panel de resultados principal
+                        showError(mainResultsContainer, data.error || `Error executing ${selectedNotebook}. Check notebook output for details.`);
+                        localPlotContainer.innerHTML = '<p>Execution failed. See details above and in the main results panel.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error executing notebook:', error);
+                    showError(stdoutOutput, `Network error or server issue executing ${selectedNotebook}.`);
+                    showError(mainResultsContainer, `Network error or server issue: ${error.message}`);
+                    localPlotContainer.innerHTML = ''; // Limpiar en caso de error de red
+                });
+        }
+        function showLoading(element, message) {
+            element.innerHTML = `<div class="loading">${message}</div>`;
+        }
+        function showError(element, message) {
+            element.innerHTML = `<div class="error">${message}</div>`;
+        }
+        function setupMathTools() { 
+            console.log("setupMathTools called");
+            // Aquí puedes inicializar el estado del módulo de herramientas matemáticas si es necesario
+        }
+
+        // --- Función para el módulo Pandas --- 
+        // DEBE ESTAR DEFINIDA ANTES DE MODULES_CONFIG
+        function loadDatasets() {
+            console.log("loadDatasets function called - populating dataset-select.");
+            const dsSelect = document.getElementById('dataset-select');
+            // Los datasets están hardcodeados en el select por ahora, 
+            // pero esta función se llama para asegurar la lógica de activación/desactivación de botones
+            // y podría usarse para cargar dinámicamente desde una API en el futuro.
+            
+            if (dsSelect.options.length > 1 && dsSelect.value !== "") {
+                // Si ya hay opciones (aparte del placeholder) y una está seleccionada
+                document.getElementById('load-dataset-btn').disabled = false; 
+                // El botón de análisis se habilita después de cargar el dataset individual
+                // document.getElementById('analyze-btn').disabled = false; 
+                // Podríamos llamar a selectDataset() si queremos cargar uno por defecto al entrar al módulo
+                 // selectDataset(); 
+            } else if (dsSelect.options.length > 1 && dsSelect.value === ""){
+                // Hay opciones pero ninguna seleccionada (solo el placeholder "Select a dataset...")
+                document.getElementById('load-dataset-btn').disabled = true; 
+                document.getElementById('analyze-btn').disabled = true;
+                document.getElementById('data-preview').textContent = 'Select a dataset to preview the data.';
+            } else {
+                 // No hay datasets cargados (solo el placeholder o un error)
+                 dsSelect.innerHTML = '<option value="">No datasets available or error.</option>';
+                 document.getElementById('load-dataset-btn').disabled = true;
+                 document.getElementById('analyze-btn').disabled = true;
+                 document.getElementById('data-preview').textContent = 'No datasets available to load.';
+            }
+        }
+
+        const MODULES_CONFIG = [
+            { /* Home */ id: 'home', buttonText: '🏠 Home', panelId: 'home-panel', onSwitchTo: () => { 
+                document.getElementById('results-content').innerHTML = '<p>Welcome to AppSpyder! Explore different scientific modules.</p>'; 
+            } },
+            { /* Circuits */ id: 'circuits', buttonText: '🔬 Q. Circuits', panelId: 'circuits-panel', onSwitchTo: loadCircuitFiles },
+            { /* Graphics */ id: 'graphics', buttonText: '📊 Math GFX', panelId: 'graphics-panel', onSwitchTo: loadGraphicsFiles },
+            { /* Elements */ id: 'elements', buttonText: '⚛️ Elements', panelId: 'elements-panel', onSwitchTo: () => { loadElements(); } }, 
+            { /* Waves */ id: 'waves', buttonText: '🌊 Q. Waves', panelId: 'waves-panel', onSwitchTo: null },
+            { /* Pandas */ id: 'pandas', buttonText: '📈 DataLab', panelId: 'pandas-panel', onSwitchTo: loadDatasets }, 
+            { /* Math Tools */ id: 'math_tools', buttonText: '🧮 Math Tools', panelId: 'math-tools-panel', onSwitchTo: setupMathTools },
+            { 
+                id: 'notebooks', 
+                buttonText: '📚 Notebooks', 
+                panelId: 'notebooks-panel', 
+                onSwitchTo: () => {
+                    console.log('[MOD] Switching to Notebooks');
+                    loadNotebookFiles(); 
+                },
+                onLeave: () => {
+                    console.log('[MOD] Leaving Notebooks');
+                    document.getElementById('notebookFileSelect').value = '';
+                    document.getElementById('notebook-code-display').innerHTML = 'Select a notebook to view its code.';
+                    document.getElementById('notebook-stdout-output').innerHTML = '';
+                    document.getElementById('notebook-plot-container').innerHTML = '';
+                    selectedNotebook = null;
+                }
+            }
+        ];
+
+        function generateModuleButtons() {
+            console.log('generateModuleButtons CALLED');
+            const container = document.getElementById('module-buttons-container');
+            if (!container) {
+                console.error("Button container 'module-buttons-container' not found!");
+                return;
+            }
+            container.innerHTML = ''; 
+            MODULES_CONFIG.forEach(moduleConfig => {
+                const button = document.createElement('button');
+                button.className = 'module-btn';
+                button.innerHTML = moduleConfig.buttonText; 
+                button.onclick = () => switchModule(moduleConfig.id);
+                button.setAttribute('data-module-id', moduleConfig.id); // Guardar ID para fácil activación
+                container.appendChild(button);
+            });
+        }
+
+        function switchModule(moduleId) {
+            console.log(`Attempting to switch to module: ${moduleId}`);
+            // const previousModuleConfig = MODULES_CONFIG.find(m => m.id === currentModuleId); // No usado actualmente
+            const moduleConfig = MODULES_CONFIG.find(m => m.id === moduleId);
+
+            if (!moduleConfig) {
+                console.error(`Module configuration not found for ID: ${moduleId}`);
+                return;
+            }
+
+            // Ejecutar onLeave del módulo anterior si existe
+            const prevModuleConf = MODULES_CONFIG.find(m => m.id === currentModuleId);
+            if (prevModuleConf && prevModuleConf.onLeave && typeof prevModuleConf.onLeave === 'function') {
+                prevModuleConf.onLeave();
+            }
+
+            currentModuleId = moduleId;
+
+            // Ocultar todos los paneles del left-panel
+            document.querySelectorAll('#left-controls-panel .module-panel').forEach(panel => panel.style.display = 'none');
+            
+            // Mostrar panel actual en el left-panel
+            const currentPanel = document.getElementById(moduleConfig.panelId);
+            if (currentPanel) currentPanel.style.display = 'block';
+            else console.error(`Panel with ID ${moduleConfig.panelId} not found.`);
+
+            // Actualizar botones activos
+            document.querySelectorAll('#module-buttons-container .module-btn').forEach(btn => {
+                if (btn.getAttribute('data-module-id') === moduleId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Limpiar el panel de resultados derecho (results-content) para todos los módulos al cambiar
+            // excepto si el módulo maneja su propia área de resultados (como notebooks en su propio panel)
+            if (moduleId !== 'notebooks') { 
+                document.getElementById('results-content').innerHTML = '<p>Select an action to see results.</p>';
+            } else {
+                // Para notebooks, el onSwitchTo y onLeave se encargan de limpiar sus áreas específicas dentro de su panel
+                // El panel de la derecha (results-content) puede quedar como está o limpiarse si se prefiere
+                // Por ahora, lo dejaremos así, ya que los resultados del notebook se muestran en su propio panel.
+                // Si se quisiera usar results-content para algo más en notebooks, se ajustaría aquí.
+            }
+
+            // Ejecutar onSwitchTo del módulo actual
+            if (moduleConfig.onSwitchTo && typeof moduleConfig.onSwitchTo === 'function') {
+                moduleConfig.onSwitchTo();
+            }
+            
+            // Resetear variables globales de selección (esto podría ir en los onLeave de cada módulo)
+            selectedCircuit = null; selectedGraphics = null; selectedElement = null; selectedDataset = null;
+            currentMatrix = null; currentGraphMatrix = null; // selectedNotebook ya se maneja en onLeave de notebooks
+            
+            // Deshabilitar botones de acción generales (esto podría ir en los onLeave o ser más granular)
+            const btnIdsToDisable = [
+                'load-circuit-btn', 'execute-circuit-btn', 
+                'load-graphics-btn', 'execute-graphics-btn',
+                'load-dataset-btn', 'analyze-btn', 
+                /* 'execute-notebook-btn' no se deshabilita aquí, su estado depende de la selección */
+                'analyze-matrix-btn', 'analyze-graph-btn'
+            ];
+            btnIdsToDisable.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = true;
+            });
+            
+            console.log("Current module ID set to:", currentModuleId);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded event FIRED');
+            // Mover el event listener de graph-type aquí es más seguro:
+            const graphTypeSelect = document.getElementById('graph-type');
+            if(graphTypeSelect) {
+                graphTypeSelect.addEventListener('change', function() {
+                    const probabilityRow = document.getElementById('probability-row');
+                    if (this.value === 'random') {
+                        probabilityRow.style.display = 'flex';
+                    } else {
+                        probabilityRow.style.display = 'none';
+                    }
+                });
+            } else {
+                console.warn("Element with ID 'graph-type' not found for event listener.")
+            }
+
+            generateModuleButtons();
+            switchModule('home');
+        });
+        console.log('SCRIPT END');
+
+        function executeGraphics() {
+            console.log('[DEBUG-GFX-BTN] "Generate Plot" clicked. selectedGraphics is:', selectedGraphics); 
+            if (!selectedGraphics) {
+                console.error('[DEBUG-GFX-BTN] selectedGraphics is not set. Aborting.'); 
+                return;
+            }
+            
+            document.getElementById('results-content').innerHTML = '<div class="loading">Generating plot...</div>';
+            
+            const safeSelectedGraphics = String(selectedGraphics).trim();
+            console.log('[DEBUG-GFX-BTN] Using safeSelectedGraphics for fetch:', safeSelectedGraphics);
+
+            fetch(`/api/graphics/execute/${encodeURIComponent(safeSelectedGraphics)}`)
+                .then(response => {
+                    console.log('[DEBUG-GFX-BTN] Fetch response status:', response.status, response.statusText);
+                    if (!response.ok) {
+                        console.error(`[DEBUG-GFX-BTN] HTTP error! Status: ${response.status}. URL: ${response.url}`);
+                        return response.text().then(text => {
+                            console.error('[DEBUG-GFX-BTN] Error response body:', text);
+                            throw new Error(`Server error ${response.status}: ${text || response.statusText}`);
+                        });
+                    }
+                    return response.json(); 
+                })
+                .then(data => {
+                    console.log('[DEBUG-GFX-BTN] Data received from server:', data);
+                    if (data.success) {
+                        let html = '';
+                        
+                        if (data.image) { 
+                            html += `<img src="data:image/png;base64,${data.image}" class="result-image" alt="Generated Plot">`;
+                        }
+                        
+                        if (data.filename) {
+                            html += `<div class="result-text">Generated plot for: ${data.filename}</div>`;
+                        }
+
+                        if (html === ''){
+                            html = '<div class="error">Plot request successful, but no image or filename received.</div>';
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = html;
+                    } else {
+                        console.error('[DEBUG-GFX-BTN] Server responded with success=false. Error:', data.error);
+                        document.getElementById('results-content').innerHTML = `<div class="error">Application error: ${data.error || 'Unknown error from server'}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('[DEBUG-GFX-BTN] Catch block: Error in executeGraphics fetch or processing:', error);
+                    document.getElementById('results-content').innerHTML = `<div class="error">Request failed or error processing response: ${error.message}</div>`;
+                });
+        }
+    </script>
+</body>
+</html>

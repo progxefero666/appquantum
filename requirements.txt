@@ -1,0 +1,13 @@
+flask
+matplotlib
+pygments
+pandas
+numpy
+seaborn
+qiskit
+qiskit-aer
+PyQt5
+scipy
+networkx
+pylatexenc
+fpdf2 

@@ -1,0 +1,251 @@
+# Documento de Análisis Informático: Proyecto "appspyder"
+
+App Escritorio para Window11+ en python con interface grafico
+con kinter customtkinter ,graficos matplot y prog con qiskit
+y abrir e ejecutar scripts
+---
+
+## 1. Introducción y Propósito del Proyecto
+
+El proyecto **"appspyder"** es una iniciativa de desarrollo de software personal
+para **aprendizaje profundo**. Su objetivo primordial es dominar física,
+química y programación cuántica, sirviendo como **herramienta de exploración
+e investigación**. No es una app comercial, sino un laboratorio para
+experimentar.
+
+La pasión del creador por geometría, topología, diseño gráfico (2D, 3D,
+impresión 3D) y el universo cuántico impulsa la integración de disciplinas
+para una comprensión unificada. La programación es el medio para visualizar
+y simular principios.
+
+---
+
+## 2. Visión General del Proyecto "appspyder"
+
+### 2.1. Objetivo Principal
+
+"appspyder" busca ser una plataforma unificada de **aprendizaje, simulación
+y visualización interactiva** en física cuántica, química y computación
+cuántica. Permite:
+
+* Explorar y ejecutar circuitos cuánticos (Qiskit).
+* Visualizar y experimentar con gráficos matemáticos (Matplotlib).
+* Interpolar con datos de elementos químicos (Tabla Periódica).
+* Extenderse a notebooks, geometría topológica, ondas, física cuántica
+    y orbitales atómicos.
+
+### 2.2. Perfil del Usuario
+
+El usuario principal es el **propio desarrollador**. Esto prioriza
+**funcionalidad y flexibilidad de experimentación** sobre la usabilidad o
+robustez comercial. La interfaz facilitará la interacción rápida
+con los módulos de aprendizaje.
+
+### 2.3. Componentes Clave
+
+Las funcionalidades iniciales y futuras de "appspyder" incluyen:
+
+* **Circuitos Qiskit:** Visualización y ejecución-simulación de circuitos
+    cuánticos (diagramas, histogramas, vectores).
+	
+* **Math Graphics:** Visualización y ejecución de scripts Matplotlib
+    para aprendizaje y experimentación 2D/3D.
+	
+* **Chemistry Basic Elements:** Visualización de la tabla periódica
+    con filtros, detalles y posibles gráficos básicos (ej. capas
+    de electrones).
+
+* **Módulo Jupiter Notebooks.
+	igual q el de circuitos pero para el formato de los ficheros de jupiter notebook
+	
+* **Uso de pandas y ficheros de datos.
+	por definir
+	
+* **Módulos Futuros (Pendientes de Análisis):** Jupiter Notebooks, geometría
+    topológica, ondas (ecuaciones de física cuántica) y orbitales atómicos.
+
+---
+
+## 3. Arquitectura de Interfaz de Usuario (UI)
+
+La filosofía de diseño de la UI prioriza la simplicidad en la gestión y
+el desarrollo, minimizando el esfuerzo en la creación de interfaces complejas.
+
+### 3.1. Filosofía de Diseño: Ventana Única con Paneles Intercambiables
+
+La app usará una **ventana única por modulo. 
+cada una 
+### 3.2. Herramientas de Implementación: PyGubu y CustomTkinter
+
+Para una creación de UI rápida y automática, se usarán:
+
+* **PyGubu Designer:** App visual para diseño de interfaces (arrastrar,
+    soltar, layouts). Genera archivos XML (`.ui`).
+* **CustomTkinter:** Librería Python que extiende Tkinter, con widgets
+    modernos y una apariencia atractiva por defecto. PyGubu lo soporta
+    para renderizar la UI.
+
+Esta combinación permite describir la **estructura general** de la interfaz,
+dejando que las herramientas gestionen el posicionamiento y tamaño con
+layouts automáticos, reduciendo el tiempo de diseño manual.
+
+### 3.3. Estructura de Navegación
+
+La navegación entre módulos se hará con una **barra de botones simple**.
+Cada botón cargará el panel correspondiente. Un menú avanzado podría
+añadirse después. La visualización será clara: **datos a un lado,
+resultados asociados a la derecha**, adaptándose al formato (gráficos,
+texto, tablas).
+
+---
+
+## 4. Gestión de Datos y Archivos
+
+Una organización clara de archivos es fundamental para un proyecto
+diverso en crecimiento.
+
+### 4.1. Estrategia de Organización de Carpetas
+
+Se usará una **separación de preocupaciones**, distinguiendo el código
+fuente de los recursos externos. La estructura propuesta es:
+
+appspyder/
+├── src/
+│   ├── ui/
+│   │   ├── main_window.py
+│   │   └── my_pygubu_ui.ui
+│   ├── db/
+│   │   └── (módulos de base de datos)
+│   ├── graph/
+│   │   └── (módulos de gráficos)
+│   ├── simulator/
+│   │   └── (motores de simulación)
+│   └── init.py
+├── data/
+│   ├── raw/
+│   │   └── (datos originales sin procesar)
+│   └── processed/
+│       └── (datos transformados)
+├── public/
+│   ├── circuit/
+│   │   ├── numeric/
+│   │   │   └── cr_half_adder.py
+│   │   └── test/
+│   │       └── cr_test_a.py
+│   ├── graphs/
+│   │   └── (ejemplos de scripts para gráficos)
+│   ├── circuits_qiskit.py
+│   └── graphs_math.py
+├── main.py
+├── pyproject.toml
+├── README.md
+└── .venv/
+
+
+### 4.2. Carga Dinámica de Módulos
+
+La app usará un sistema de **carga dinámica de módulos y funciones**
+(`importlib.import_module`, `getattr`), como el ya implementado. Es
+independiente de la UI y permite añadir ejemplos (circuitos, gráficos,
+datos) sin modificar la lógica principal. Las rutas de importación
+serán relativas al directorio raíz (`appspyder/`).
+
+---
+
+## 5. Dependencias y Entorno de Desarrollo
+
+Para compatibilidad y reproducibilidad, se definen las siguientes
+dependencias y el proceso de instalación.
+
+### 5.1. Especificaciones de Python
+
+* **Versión de Python:** `>=3.13` (probado con Python 3.13.3).
+
+### 5.2. Librerías Requeridas
+
+Estas librerías deben instalarse en el entorno:
+
+* `matplotlib>=3.10.3`
+* `numpy>=2.2.6`
+* `pyqt5>=5.15.11` (necesario si `pyqtdarktheme` la requiere)
+* `pyqtdarktheme>=2.1.0`
+* `qiskit-aer==0.13.0`
+* `qiskit==0.44.0`
+* `pylatexenc>=2.10`
+* `customtkinter`
+* `pygubu-designer` (incluye la app de diseño y la librería `pygubu`)
+
+### 5.3. Proceso de Instalación
+
+Se recomienda un **entorno virtual** para aislar dependencias:
+
+1.  **Crear Entorno Virtual:**
+    ```bash
+    python3.13 -m venv .venv
+    ```
+
+2.  **Activar Entorno Virtual:**
+    * **Windows:**
+        ```bash
+        .\.venv\Scripts\activate
+        ```
+    * **macOS/Linux:**
+        ```bash
+        source ./.venv/bin/activate
+        ```
+
+3.  **Instalar Dependencias:**
+    ```bash
+    pip install matplotlib numpy pyqt5 pyqtdarktheme qiskit-aer qiskit pylatexenc customtkinter pygubu-designer
+    ```
+
+### 5.4. Consideraciones de Compatibilidad
+
+* **Python 3.13:** `pygubu` y `customtkinter` son compatibles o están
+    siendo actualizados para esta versión.
+* **Tkinter en Python 3.13:** Posibles problemas menores iniciales
+    con `tkinter` en 3.13, corregidos en parches.
+* **PyQtdarktheme:** Se mantiene, pero si no se usa PyQt directamente
+    para la UI principal, su necesidad puede ser redundante.
+
+---
+
+## 6. Flujo de Trabajo y Manejo de Errores
+
+### 6.1. Flujo de Trabajo del Usuario
+
+El usuario seleccionará un módulo (ej. Qiskit) con la barra de botones.
+En el panel del módulo, elegirá un ejemplo (ej. `test-A`), lo ejecutará,
+y verá resultados (gráficos, tablas, texto) a la derecha. Este ciclo
+"seleccionar - ejecutar - visualizar" es la interacción principal.
+
+### 6.2. Manejo de Errores
+
+Para uso personal, el control de errores será **mínimo y funcional**.
+Errores se gestionarán con:
+
+* Mensajes en la consola.
+* Registro en un panel de log dentro de la UI.
+* Excepciones básicas para fallos críticos.
+
+Esto permite un desarrollo más rápido al no requerir una gestión
+exhaustiva de excepciones.
+
+---
+
+## 7. Conclusiones y Próximos Pasos
+
+"appspyder" es una herramienta personal y flexible para dominar campos
+complejos mediante programación interactiva. La arquitectura de UI
+(ventana única con paneles, PyGubu, CustomTkinter) promete eficiencia.
+La separación de código y recursos asegura buena organización.
+
+Los próximos pasos incluyen:
+
+* Configurar el entorno de desarrollo.
+* Familiarizarse con PyGubu Designer para prototipar paneles.
+* Integrar los diseños de PyGubu con la lógica de carga dinámica.
+
+Este documento es una guía sólida para la implementación y el desarrollo
+continuado de "appspyder".
+

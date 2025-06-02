@@ -1,0 +1,103 @@
+import sqlite3
+from typing import List, Optional
+
+
+from src.chemical.chemicalatoms.atomsutil import AtomsUtil
+from src.db.chemical.dbconnection import get_db_connection
+from src.db.chemical.model.element import Element
+
+
+class ElementsService:
+    def __init__(self):
+        self._conn: Optional[sqlite3.Connection] = None
+
+    def _get_connection(self) -> sqlite3.Connection:
+        if self._conn is None:
+            self._conn = get_db_connection()
+            self._conn.row_factory = sqlite3.Row
+        return self._conn
+
+    def _close_connection(self):
+        if self._conn:
+            self._conn.close()
+            self._conn = None
+
+    def get_all_elements(self) -> List[Element]:
+        conn = self._get_connection()
+        elements: List[Element] = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM elements")
+            rows = cursor.fetchall()
+            for row in rows:
+                elements.append(Element.from_dict(dict(row)))
+        except sqlite3.Error as e:
+            print(f"Error fetching all elements: {e}")
+            raise
+        return elements
+
+    def get_elements_by_group(self, group_id: int) -> List[Element]:
+        conn = self._get_connection()
+        elements: List[Element] = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM elements WHERE egroup = ?", (group_id,))
+            rows = cursor.fetchall()
+            for row in rows:
+                elements.append(Element.from_dict(dict(row)))
+        except sqlite3.Error as e:
+            print(f"Error fetching elements by group {group_id}: {e}")
+            raise
+        return elements
+    
+    def get_elements_by_category(self, category_name: str) -> List[Element]:
+        """
+        Fetches elements belonging to a specific category.
+        """
+        conn = self._get_connection()
+        elements: List[Element] = []
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM elements WHERE category = ?", (category_name,))
+            rows = cursor.fetchall()
+            for row in rows:
+                elements.append(Element.from_dict(dict(row)))
+        except sqlite3.Error as e:
+            print(f"Error fetching elements by category '{category_name}': {e}")
+            raise
+        return elements
+    
+    def update_electron_configurations(self):
+        """
+        Calcula la configuración electrónica para todos los elementos
+        en la base de datos y actualiza el campo 'econfig' de cada uno.
+        """
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            # Primero, obtenemos todos los elementos para procesarlos
+            cursor.execute("SELECT atomicnumber FROM elements")
+            atomic_numbers = [row['atomicnumber'] for row in cursor.fetchall()]
+
+            for atomic_num in atomic_numbers:
+                econfig = AtomsUtil.get_electron_configuration(atomic_num)
+                # Actualizamos el campo 'econfig' para el elemento actual
+                cursor.execute(
+                    "UPDATE elements SET econfig = ? WHERE atomicnumber = ?",
+                    (econfig, atomic_num)
+                )
+                print(f"Actualizado Elemento {atomic_num}: econfig = '{econfig}'")
+
+            conn.commit()  # Confirma todos los cambios en la base de datos
+            print("¡Configuraciones electrónicas actualizadas con éxito!")
+
+        except sqlite3.Error as e:
+            print(f"Error al actualizar configuraciones electrónicas: {e}")
+            conn.rollback() # Deshace cualquier cambio si ocurre un error
+            raise # Vuelve a lanzar la excepción para que el llamador pueda manejarla
+        finally:
+            self._close_connection() # Asegura que la conexión se cierre
+                
+# Create a single instance of the service that can be imported
+# This makes it accessible like a "static" object across your application
+SERV_ELEMENTS = ElementsService()
