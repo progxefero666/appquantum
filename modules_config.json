@@ -1,0 +1,81 @@
+{
+  "modules": {
+    "circuits": {
+      "name": "Quantum Circuits",
+      "icon": "🔬",
+      "description": "Quantum circuit visualization and execution",
+      "enabled": true,
+      "routes": {
+        "files": "/api/circuits/files",
+        "load": "/api/circuits/load",
+        "execute": "/api/circuits/execute"
+      },
+      "dependencies": ["qiskit", "matplotlib"],
+      "file_extensions": [".py"],
+      "base_directory": "public/circuits"
+    },
+    "graphics": {
+      "name": "Math Graphics",
+      "icon": "📊",
+      "description": "Mathematical plots and visualizations",
+      "enabled": true,
+      "routes": {
+        "files": "/api/graphics/files",
+        "load": "/api/graphics/load",
+        "execute": "/api/graphics/execute"
+      },
+      "dependencies": ["matplotlib", "numpy"],
+      "file_extensions": [".py"],
+      "base_directory": "public/graphs"
+    },
+    "elements": {
+      "name": "Periodic Elements",
+      "icon": "⚛️",
+      "description": "Chemical elements data and visualization",
+      "enabled": true,
+      "routes": {
+        "all": "/api/elements/all",
+        "search": "/api/elements/search",
+        "visualize": "/api/elements/visualize"
+      },
+      "dependencies": ["matplotlib", "numpy"],
+      "database": "public/elements.db"
+    },
+    "waves": {
+      "name": "Quantum Waves",
+      "icon": "🌊",
+      "description": "Quantum wave analysis and visualization",
+      "enabled": true,
+      "routes": {
+        "generate": "/api/waves/generate"
+      },
+      "dependencies": ["matplotlib", "numpy", "scipy"],
+      "parameters": {
+        "frequency": {"type": "float", "min": 0.1, "max": 10, "default": 1},
+        "amplitude": {"type": "float", "min": 0.1, "max": 5, "default": 1},
+        "phase": {"type": "float", "min": 0, "max": 2, "default": 0},
+        "wave_type": {"type": "select", "options": ["sine", "cosine", "square", "probability"], "default": "sine"}
+      }
+    },
+    "pandas": {
+      "name": "Data Analysis",
+      "icon": "📈",
+      "description": "Data analysis and statistical processing",
+      "enabled": true,
+      "routes": {
+        "load": "/api/pandas/load",
+        "analyze": "/api/pandas/analyze"
+      },
+      "dependencies": ["pandas", "seaborn", "matplotlib", "numpy"],
+      "datasets": ["sample_data", "sales_data", "scientific_data"],
+      "analysis_types": ["describe", "correlation", "histogram", "scatter", "boxplot"]
+    }
+  },
+  "global_settings": {
+    "port": 5000,
+    "host": "0.0.0.0",
+    "debug": true,
+    "max_file_size": "10MB",
+    "allowed_file_types": [".py", ".json", ".csv"]
+  }
+}

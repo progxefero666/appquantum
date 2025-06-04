@@ -9,7 +9,7 @@ from typing import List, Dict, Optional
 class DatabaseManager:
     """Manager for SQLite database operations."""
     
-    def __init__(self, db_path: str = "data/elements.db"):
+    def __init__(self, db_path: str = "public/elements.db"):
         self.db_path = db_path
         self.connection = None
         self.init_database()

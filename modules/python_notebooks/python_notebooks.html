@@ -1,0 +1,229 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Python Notebooks{% endblock %}
+{% block page_title %}Python Notebooks{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Editor de código */
+    .code-editor {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        min-height: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    /* Output del notebook */
+    .notebook-output {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.75rem;
+        max-height: 350px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+    }
+    
+    /* Lista de notebooks */
+    .notebook-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="alert alert-info mb-3">
+        <i class="ti ti-notebook text-xl"></i>
+        <span>Ejecuta código Python interactivo. Carga, edita y ejecuta notebooks con visualizaciones y salida en tiempo real.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Panel Izquierdo: Lista de Notebooks (3 cols) -->
+        <div class="lg:col-span-3">
+            <!-- Notebooks Disponibles -->
+            <div class="card bg-base-100 shadow-xl compact">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-files"></i>
+                        Notebooks
+                    </h2>
+                    
+                    <div id="notebook-list" class="notebook-list space-y-1">
+                        <!-- Los notebooks se cargarán aquí -->
+                        <div class="text-center py-4">
+                            <span class="loading loading-spinner loading-sm"></span>
+                            <p class="mt-2 text-sm">Cargando notebooks...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="divider my-2"></div>
+                    
+                    <!-- Info del notebook -->
+                    <div id="notebook-info" class="text-xs opacity-70">
+                        <p>Selecciona un notebook para comenzar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="card bg-base-100 shadow-xl compact mt-3">
+                <div class="card-body">
+                    <h3 class="font-semibold text-sm mb-2">Acciones</h3>
+                    
+                    <button id="load-btn" class="btn btn-primary btn-sm btn-block mb-2" onclick="loadNotebook()" disabled>
+                        <i class="ti ti-download"></i>
+                        Cargar Notebook
+                    </button>
+                    
+                    <button id="execute-btn" class="btn btn-success btn-sm btn-block mb-2" onclick="executeNotebook()" disabled>
+                        <i class="ti ti-player-play"></i>
+                        Ejecutar Código
+                    </button>
+                    
+                    <button class="btn btn-secondary btn-sm btn-block" onclick="clearOutput()">
+                        <i class="ti ti-trash"></i>
+                        Limpiar Salida
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Editor de Código (5 cols) -->
+        <div class="lg:col-span-5">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-code"></i>
+                        Editor de Código
+                        <div class="ml-auto flex gap-2">
+                            <button class="btn btn-ghost btn-xs" onclick="copyCode()" title="Copiar código">
+                                <i class="ti ti-copy"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs" onclick="formatCode()" title="Formatear código">
+                                <i class="ti ti-indent-increase"></i>
+                            </button>
+                        </div>
+                    </h2>
+                    
+                    <textarea id="code-editor" class="code-editor textarea textarea-bordered bg-base-200 w-full" 
+                              placeholder="# Escribe tu código Python aquí&#10;import numpy as np&#10;import matplotlib.pyplot as plt&#10;&#10;# Tu código..."></textarea>
+                    
+                    <!-- Controles del editor -->
+                    <div class="flex justify-between items-center mt-2">
+                        <div class="text-xs opacity-70">
+                            <span id="line-count">Líneas: 0</span> | 
+                            <span id="char-count">Caracteres: 0</span>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer gap-2">
+                                <span class="label-text text-xs">Tema oscuro</span>
+                                <input type="checkbox" class="toggle toggle-xs" onchange="toggleEditorTheme(this)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Salida y Visualización (4 cols) -->
+        <div class="lg:col-span-4">
+            <!-- Salida del Código -->
+            <div class="card bg-base-100 shadow-xl mb-3">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-terminal"></i>
+                        Salida del Código
+                    </h2>
+                    
+                    <div id="notebook-output" class="notebook-output bg-base-900 text-base-content rounded-lg p-3">
+                        <span class="opacity-50">La salida aparecerá aquí...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualización -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-photo"></i>
+                        Visualización
+                    </h2>
+                    
+                    <div id="visualization-container" class="min-h-[200px] flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="ti ti-chart-line text-4xl text-base-300 mb-2"></i>
+                            <p class="text-sm text-base-content/60">
+                                Las visualizaciones aparecerán aquí
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notebooks de Ejemplo -->
+    <div class="card bg-base-100 shadow-xl mt-4">
+        <div class="card-body">
+            <h3 class="card-title text-lg mb-3">
+                <i class="ti ti-book"></i>
+                Notebooks de Ejemplo
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="card bg-base-200 compact">
+                    <div class="card-body">
+                        <h4 class="font-semibold text-sm">📊 Análisis de Datos</h4>
+                        <p class="text-xs opacity-70">Pandas, NumPy, visualizaciones</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200 compact">
+                    <div class="card-body">
+                        <h4 class="font-semibold text-sm">🧮 Matemáticas</h4>
+                        <p class="text-xs opacity-70">Álgebra lineal, cálculo, estadística</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200 compact">
+                    <div class="card-body">
+                        <h4 class="font-semibold text-sm">🔬 Ciencia</h4>
+                        <p class="text-xs opacity-70">Física, química, simulaciones</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200 compact">
+                    <div class="card-body">
+                        <h4 class="font-semibold text-sm">🤖 Machine Learning</h4>
+                        <p class="text-xs opacity-70">Modelos básicos, visualizaciones</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado de carga -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+        <div class="card">
+            <div class="card-body">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+                <p class="mt-3">Ejecutando código...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast toast-end" id="toast-container" style="display: none;">
+    <div class="alert">
+        <span id="toast-message">Mensaje</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/python_notebooks/python_notebooks.js"></script>
+{% endblock %} 

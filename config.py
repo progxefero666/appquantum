@@ -8,8 +8,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # Modifica estas rutas según sea necesario para tu entorno.
 
 # Opción 1: Ruta relativa dentro del proyecto (para desarrollo inicial y creación de carpetas)
-# Usaremos 'data' como la carpeta contenedora dentro del proyecto.
-APP_DATA_RELATIVE_PATH = 'data'
+# Usaremos 'public' como la carpeta contenedora dentro del proyecto.
+APP_DATA_RELATIVE_PATH = 'public'
 APP_DATA_DIR = os.path.join(PROJECT_ROOT, APP_DATA_RELATIVE_PATH)
 
 # Derivamos las otras rutas de APP_DATA_DIR

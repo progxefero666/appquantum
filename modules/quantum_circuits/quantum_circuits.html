@@ -1,0 +1,225 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Circuitos Cuánticos{% endblock %}
+{% block page_title %}Circuitos Cuánticos{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Estilos para visualizaciones de circuitos */
+    .circuit-diagram {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dark .circuit-diagram {
+        background: #1f2937;
+    }
+    
+    /* Código con scroll compacto */
+    .code-container {
+        max-height: 350px;
+        overflow-y: auto;
+    }
+    
+    /* Lista de archivos compacta */
+    .file-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header con descripción -->
+    <div class="alert alert-info mb-4">
+        <i class="ti ti-cpu text-xl"></i>
+        <span>Explora y ejecuta circuitos cuánticos. Visualiza diagramas de circuitos y analiza resultados de mediciones cuánticas.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Panel Izquierdo: Selector de Archivos (3 cols) -->
+        <div class="lg:col-span-3">
+            <div class="card bg-base-100 shadow-xl compact">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-3">
+                        <i class="ti ti-folder"></i>
+                        Circuitos Disponibles
+                    </h2>
+                    
+                    <div id="file-list" class="file-list space-y-1">
+                        <!-- Los archivos se cargarán aquí -->
+                        <div class="text-center py-4">
+                            <span class="loading loading-spinner loading-sm"></span>
+                            <p class="mt-2 text-sm">Cargando circuitos...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="divider my-2"></div>
+                    
+                    <!-- Información del archivo seleccionado -->
+                    <div id="file-info" class="text-sm opacity-70">
+                        <p>Selecciona un circuito para comenzar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Control -->
+            <div class="card bg-base-100 shadow-xl compact mt-4">
+                <div class="card-body">
+                    <h3 class="font-semibold text-sm mb-2">Control de Ejecución</h3>
+                    
+                    <button id="load-btn" class="btn btn-primary btn-sm btn-block mb-2" onclick="loadCircuitCode()" disabled>
+                        <i class="ti ti-code"></i>
+                        Cargar Código
+                    </button>
+                    
+                    <button id="execute-btn" class="btn btn-success btn-sm btn-block" onclick="executeCircuit()" disabled>
+                        <i class="ti ti-player-play"></i>
+                        Ejecutar Circuito
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Código (4 cols) -->
+        <div class="lg:col-span-4">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-3">
+                        <i class="ti ti-code"></i>
+                        Código del Circuito
+                        <button class="btn btn-ghost btn-xs ml-auto" onclick="copyCode()" title="Copiar código">
+                            <i class="ti ti-copy"></i>
+                        </button>
+                    </h2>
+                    
+                    <div class="code-container bg-base-200 rounded-lg p-3">
+                        <pre id="code-display" class="text-xs"><code>Selecciona un circuito para ver su código...</code></pre>
+                    </div>
+                    
+                    <!-- Información del circuito -->
+                    <div id="circuit-info" class="mt-3 p-3 bg-base-200 rounded-lg">
+                        <p class="text-sm opacity-70">La información del circuito aparecerá aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Visualizaciones (5 cols) -->
+        <div class="lg:col-span-5">
+            <!-- Diagrama del Circuito -->
+            <div class="card bg-base-100 shadow-xl mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-3">
+                        <i class="ti ti-vector"></i>
+                        Diagrama del Circuito
+                    </h2>
+                    
+                    <div class="circuit-diagram" id="circuit-diagram">
+                        <div class="text-center">
+                            <i class="ti ti-vector text-4xl text-base-300 mb-2"></i>
+                            <p class="text-sm text-base-content/60">
+                                El diagrama del circuito se mostrará aquí
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados de Ejecución -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-3">
+                        <i class="ti ti-chart-histogram"></i>
+                        Resultados de Medición
+                    </h2>
+                    
+                    <div id="results-container">
+                        <!-- Estado inicial -->
+                        <div class="text-center py-8">
+                            <i class="ti ti-chart-bar text-4xl text-base-300 mb-2"></i>
+                            <p class="text-sm text-base-content/60">
+                                Ejecuta un circuito para ver los resultados
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Texto de resultados -->
+                    <div id="results-text" class="mt-3 p-3 bg-base-200 rounded-lg text-xs font-mono" style="display: none;">
+                        <!-- Los resultados en texto se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estados de carga y error -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+        <div class="card">
+            <div class="card-body">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+                <p class="mt-4">Ejecutando circuito cuántico...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Ayuda (Colapsable) -->
+    <div class="collapse collapse-arrow bg-base-200 mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title font-medium">
+            <i class="ti ti-help-circle mr-2"></i>
+            Guía Rápida de Circuitos Cuánticos
+        </div>
+        <div class="collapse-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div class="card bg-base-100">
+                    <div class="card-body compact">
+                        <h4 class="font-semibold text-sm mb-2">
+                            <i class="ti ti-atom-2 text-primary"></i>
+                            Qubits
+                        </h4>
+                        <p class="text-xs">Los qubits son la unidad básica de información cuántica. Pueden estar en superposición de estados |0⟩ y |1⟩.</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-100">
+                    <div class="card-body compact">
+                        <h4 class="font-semibold text-sm mb-2">
+                            <i class="ti ti-transform text-secondary"></i>
+                            Puertas Cuánticas
+                        </h4>
+                        <p class="text-xs">Las puertas (H, X, CNOT, etc.) manipulan el estado de los qubits mediante operaciones unitarias.</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-100">
+                    <div class="card-body compact">
+                        <h4 class="font-semibold text-sm mb-2">
+                            <i class="ti ti-chart-dots text-accent"></i>
+                            Mediciones
+                        </h4>
+                        <p class="text-xs">Al medir un qubit en superposición, colapsa a |0⟩ o |1⟩ con probabilidades determinadas por su estado.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para notificaciones -->
+<div class="toast toast-end" id="toast-container" style="display: none;">
+    <div class="alert">
+        <span id="toast-message">Mensaje</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/quantum_circuits/quantum_circuits.js"></script>
+{% endblock %} 

@@ -1,0 +1,283 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Elementos Químicos{% endblock %}
+{% block page_title %}Elementos Químicos{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Estilos para la visualización de elementos */
+    .element-visualization {
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Estilos para la lista de elementos */
+    .element-grid {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    /* Colores por categoría de elementos */
+    .element-alkali { background-color: #ff6b6b; }
+    .element-alkaline { background-color: #feca57; }
+    .element-transition { background-color: #48dbfb; }
+    .element-metalloid { background-color: #ff9ff3; }
+    .element-nonmetal { background-color: #54a0ff; }
+    .element-halogen { background-color: #5f27cd; }
+    .element-noble { background-color: #00d2d3; }
+    .element-lanthanide { background-color: #ff6348; }
+    .element-actinide { background-color: #2e86ab; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header con descripción -->
+    <div class="alert alert-info mb-6">
+        <i class="ti ti-atom text-xl"></i>
+        <span>Explora la tabla periódica interactiva. Busca elementos por nombre o símbolo, filtra por categorías y visualiza sus propiedades.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Panel Izquierdo: Búsqueda y Lista -->
+        <div class="lg:col-span-1">
+            <!-- Filtros de Búsqueda -->
+            <div class="card bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-search"></i>
+                        Buscar Elementos
+                    </h2>
+                    
+                    <!-- Campo de búsqueda -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Buscar por nombre o símbolo</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="search-input" placeholder="Ej: Hidrógeno, H, Gold..." 
+                                   class="input input-bordered w-full" onkeyup="filterElements()">
+                            <button class="btn btn-square" onclick="clearSearch()">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtro por categoría -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Categoría</span>
+                        </label>
+                        <select id="category-filter" class="select select-bordered w-full" onchange="filterElements()">
+                            <option value="">Todas las categorías</option>
+                            <option value="alkali metal">Metales alcalinos</option>
+                            <option value="alkaline earth metal">Metales alcalinotérreos</option>
+                            <option value="transition metal">Metales de transición</option>
+                            <option value="metalloid">Metaloides</option>
+                            <option value="nonmetal">No metales</option>
+                            <option value="halogen">Halógenos</option>
+                            <option value="noble gas">Gases nobles</option>
+                            <option value="lanthanide">Lantánidos</option>
+                            <option value="actinide">Actínidos</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por período -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Período</span>
+                        </label>
+                        <select id="period-filter" class="select select-bordered w-full" onchange="filterElements()">
+                            <option value="">Todos los períodos</option>
+                            <option value="1">Período 1</option>
+                            <option value="2">Período 2</option>
+                            <option value="3">Período 3</option>
+                            <option value="4">Período 4</option>
+                            <option value="5">Período 5</option>
+                            <option value="6">Período 6</option>
+                            <option value="7">Período 7</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Elementos -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-list"></i>
+                        Elementos
+                        <span class="badge badge-primary ml-auto" id="element-count">0</span>
+                    </h2>
+                    
+                    <div id="elements-grid" class="element-grid space-y-2">
+                        <!-- Los elementos se cargarán aquí dinámicamente -->
+                        <div class="text-center py-8">
+                            <span class="loading loading-spinner loading-md"></span>
+                            <p class="mt-2">Cargando elementos...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Detalles del Elemento -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-100 shadow-xl h-full">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-info-circle"></i>
+                        Detalles del Elemento
+                    </h2>
+                    
+                    <div id="element-details" class="space-y-4">
+                        <!-- Estado inicial -->
+                        <div class="text-center py-8">
+                            <i class="ti ti-atom text-6xl text-base-300 mb-4"></i>
+                            <p class="text-base-content/60">
+                                Selecciona un elemento para ver sus detalles
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Visualización -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-100 shadow-xl h-full">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-chart-dots-3"></i>
+                        Visualización
+                    </h2>
+                    
+                    <!-- Estado inicial -->
+                    <div class="element-visualization" id="visualization-container">
+                        <div class="text-center">
+                            <i class="ti ti-chart-dots text-6xl text-base-300 mb-4"></i>
+                            <p class="text-base-content/60">
+                                Selecciona un elemento para ver su visualización completa
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de carga -->
+                    <div id="loading-state" class="element-visualization" style="display: none;">
+                        <div class="text-center">
+                            <span class="loading loading-spinner loading-lg text-primary"></span>
+                            <p class="mt-4">Generando visualización...</p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de error -->
+                    <div id="error-state" class="alert alert-error mt-4" style="display: none;">
+                        <i class="ti ti-alert-circle"></i>
+                        <span id="error-message">Error al generar visualización</span>
+                    </div>
+                    
+                    <!-- Botón de visualización -->
+                    <div class="mt-4">
+                        <button id="visualize-btn" class="btn btn-primary btn-block" onclick="visualizeElement()" disabled>
+                            <i class="ti ti-chart-dots-3"></i>
+                            Generar Visualización Completa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Información Adicional -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Leyenda de Categorías -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="card-title text-lg mb-4">
+                    <i class="ti ti-palette"></i>
+                    Leyenda de Categorías
+                </h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-alkali"></div>
+                        <span class="text-sm">Metales alcalinos</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-alkaline"></div>
+                        <span class="text-sm">Metales alcalinotérreos</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-transition"></div>
+                        <span class="text-sm">Metales de transición</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-metalloid"></div>
+                        <span class="text-sm">Metaloides</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-nonmetal"></div>
+                        <span class="text-sm">No metales</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-halogen"></div>
+                        <span class="text-sm">Halógenos</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-noble"></div>
+                        <span class="text-sm">Gases nobles</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded element-lanthanide"></div>
+                        <span class="text-sm">Lantánidos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h3 class="card-title text-lg mb-4">
+                    <i class="ti ti-chart-bar"></i>
+                    Estadísticas Rápidas
+                </h3>
+                <div class="stats stats-vertical lg:stats-horizontal shadow">
+                    <div class="stat">
+                        <div class="stat-title">Total Elementos</div>
+                        <div class="stat-value text-primary">118</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Descubiertos</div>
+                        <div class="stat-value text-secondary" id="discovered-count">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-title">Sintéticos</div>
+                        <div class="stat-value text-accent" id="synthetic-count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para información expandida -->
+<dialog id="info-modal" class="modal">
+    <div class="modal-box max-w-3xl">
+        <h3 class="font-bold text-lg mb-4" id="modal-title">Información del Elemento</h3>
+        <div id="modal-content">
+            <!-- Contenido dinámico -->
+        </div>
+        <div class="modal-action">
+            <form method="dialog">
+                <button class="btn">Cerrar</button>
+            </form>
+        </div>
+    </div>
+</dialog>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/periodic_elements/periodic_elements.js"></script>
+{% endblock %} 

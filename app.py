@@ -11,7 +11,7 @@ import base64
 import io
 import traceback
 import time
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, Response, make_response
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
@@ -19,6 +19,8 @@ from matplotlib.figure import Figure
 import scipy.linalg
 import networkx as nx
 from fpdf import FPDF # Importar FPDF
+from flask_cors import CORS
+from jinja2 import FileSystemLoader, ChoiceLoader
 
 try:
     from pygments import highlight
@@ -41,8 +43,32 @@ from src.quantum.graph_circuit import generate_circuit_diagram_figure
 import pandas as pd
 import numpy as np
 import seaborn as sns
+from src.math.matrix_tools import MatrixTools
+from src.math.graph_tools import GraphTools
 
-app = Flask(__name__, static_folder='static', static_url_path='/static')
+# Create Flask app with custom template loading
+template_dirs = [
+    'home',
+    'modules/quantum_waves',
+    'modules/math_graphics',
+    'modules/periodic_elements',
+    'modules/quantum_circuits',
+    'modules/pandas_analytics',
+    'modules/mathematical_tools',
+    'modules/python_notebooks'
+]
+
+# Create a choice loader with all template directories
+loader = ChoiceLoader([
+    FileSystemLoader(directory) for directory in template_dirs
+])
+
+app = Flask(__name__, static_folder='static', static_url_path='/static', template_folder='home')
+app.jinja_loader = loader
+app.config['SECRET_KEY'] = 'your-secret-key-here'
+
+# Enable CORS for all routes
+CORS(app)
 
 # Initialize database
 db_manager = DatabaseManager()
@@ -84,7 +110,7 @@ def format_python_code(code):
 @app.route('/')
 def index():
     """Main page with module selection."""
-    return render_template('index.html', last_updated=time.time())
+    return render_template('index.html')
 
 @app.route('/api/circuits/files')
 def get_circuit_files():
@@ -1274,6 +1300,50 @@ def generate_sample_pdf():
         app.logger.error(f"Error generando PDF de ejemplo: {e}")
         app.logger.error(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# New routes for modular design
+@app.route('/quantum-waves')
+def quantum_waves():
+    """Render quantum waves module."""
+    return render_template('quantum_waves.html')
+
+@app.route('/math-graphics')
+def math_graphics():
+    """Render math graphics module."""
+    return render_template('math_graphics.html')
+
+@app.route('/periodic-elements')
+def periodic_elements():
+    """Render periodic elements module."""
+    return render_template('periodic_elements.html')
+
+@app.route('/quantum-circuits')
+def quantum_circuits():
+    """Render quantum circuits module."""
+    return render_template('quantum_circuits.html')
+
+@app.route('/pandas-analytics')
+def pandas_analytics():
+    """Render pandas analytics module."""
+    return render_template('pandas_analytics.html')
+
+@app.route('/mathematical-tools')
+def mathematical_tools():
+    """Render mathematical tools module."""
+    return render_template('mathematical_tools.html')
+
+@app.route('/python-notebooks')
+def python_notebooks():
+    """Render python notebooks module."""
+    return render_template('python_notebooks.html')
+
+# Route to serve module static files (JS, CSS, etc.)
+@app.route('/modules/<module_name>/<filename>')
+def serve_module_static(module_name, filename):
+    """Serve static files from module directories."""
+    module_path = os.path.join('modules', module_name)
+    return send_file(os.path.join(module_path, filename))
 
 if __name__ == '__main__':
     # La función ensure_directories() en config.py ya se habrá ejecutado al importar config.

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AppQuantum{% endblock %}</title>
+    
+    <!-- Tailwind CSS + DaisyUI via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <!-- Themify Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sidebar-bg': 'var(--sidebar-bg)',
+                        'sidebar-text': 'var(--sidebar-text)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles for modern sidebar -->
+    <style>
+        /* Variables CSS para personalización */
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 56px;
+        }
+        
+        [data-theme="dark"] {
+            --sidebar-bg: #1a1a1a;
+            --sidebar-text: #e5e5e5;
+        }
+        
+        [data-theme="light"] {
+            --sidebar-bg: #fafafa;
+            --sidebar-text: #171717;
+        }
+        
+        /* Sidebar moderno */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-overlay {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
+        
+        /* Animaciones suaves */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-base-100">
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-30 hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar flex flex-col">
+        <!-- Logo/Brand -->
+        <div class="p-4 border-b border-base-300">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="ti ti-rocket text-primary"></i>
+                    <span>AppQuantum</span>
+                </h1>
+                <button class="lg:hidden btn btn-ghost btn-sm" onclick="toggleSidebar()">
+                    <i class="ti ti-close"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="menu menu-compact gap-1">
+                <li>
+                    <a href="/" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="ti ti-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                
+                <li class="menu-title">
+                    <span>Módulos Científicos</span>
+                </li>
+                
+                <li>
+                    <a href="/quantum-waves" class="{% if 'quantum-waves' in request.path %}active{% endif %}">
+                        <i class="ti ti-wave-sine"></i>
+                        <span>Ondas Cuánticas</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/quantum-circuits" class="{% if 'quantum-circuits' in request.path %}active{% endif %}">
+                        <i class="ti ti-cpu"></i>
+                        <span>Circuitos Cuánticos</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/periodic-elements" class="{% if 'periodic-elements' in request.path %}active{% endif %}">
+                        <i class="ti ti-atom"></i>
+                        <span>Elementos Químicos</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/math-graphics" class="{% if 'math-graphics' in request.path %}active{% endif %}">
+                        <i class="ti ti-chart-line"></i>
+                        <span>Gráficos Matemáticos</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/pandas-analytics" class="{% if 'pandas-analytics' in request.path %}active{% endif %}">
+                        <i class="ti ti-chart-histogram"></i>
+                        <span>Análisis de Datos</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/mathematical-tools" class="{% if 'mathematical-tools' in request.path %}active{% endif %}">
+                        <i class="ti ti-calculator"></i>
+                        <span>Herramientas Matemáticas</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/python-notebooks" class="{% if 'python-notebooks' in request.path %}active{% endif %}">
+                        <i class="ti ti-notebook"></i>
+                        <span>Python Notebooks</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Theme Switcher -->
+        <div class="p-4 border-t border-base-300">
+            <div class="flex items-center justify-between">
+                <span class="text-sm">Tema</span>
+                <label class="swap swap-rotate">
+                    <input type="checkbox" id="theme-toggle" />
+                    <i class="ti ti-sun swap-on text-xl"></i>
+                    <i class="ti ti-moon swap-off text-xl"></i>
+                </label>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="navbar bg-base-100 border-b border-base-300 sticky top-0 z-20">
+            <div class="flex-1">
+                <button class="btn btn-ghost lg:hidden" onclick="toggleSidebar()">
+                    <i class="ti ti-menu-2 text-xl"></i>
+                </button>
+                <h2 class="text-lg font-semibold ml-4">{% block page_title %}{% endblock %}</h2>
+            </div>
+            <div class="flex-none">
+                <!-- Puedes agregar más elementos al header aquí -->
+                <button class="btn btn-ghost btn-circle">
+                    <i class="ti ti-help-circle text-xl"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Page Content -->
+        <main class="p-6">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <!-- Theme and Sidebar Scripts -->
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+        
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Sidebar Toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+        }
+        
+        // Close sidebar on navigation (mobile)
+        if (window.innerWidth < 1024) {
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(toggleSidebar, 100);
+                });
+            });
+        }
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,193 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Ondas Cuánticas{% endblock %}
+{% block page_title %}Ondas Cuánticas{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Estilos específicos para las visualizaciones */
+    .wave-visualization {
+        background: var(--b1);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header con descripción -->
+    <div class="alert alert-info mb-6">
+        <i class="ti ti-info-circle text-xl"></i>
+        <span>Genera y analiza diferentes tipos de ondas cuánticas. Ajusta los parámetros para explorar sus propiedades.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Panel de Control (Izquierda) -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-settings"></i>
+                        Parámetros de Onda
+                    </h2>
+                    
+                    <!-- Frecuencia -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Frecuencia (Hz)</span>
+                            <span class="label-text-alt text-primary" id="freq-value">1.0</span>
+                        </label>
+                        <input type="range" id="wave-frequency" min="0.1" max="10" value="1" step="0.1" 
+                               class="range range-primary" oninput="updateFrequencyLabel()">
+                        <div class="w-full flex justify-between text-xs px-2">
+                            <span>0.1</span>
+                            <span>5</span>
+                            <span>10</span>
+                        </div>
+                    </div>
+
+                    <!-- Amplitud -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Amplitud</span>
+                            <span class="label-text-alt text-secondary" id="amp-value">1.0</span>
+                        </label>
+                        <input type="range" id="wave-amplitude" min="0.1" max="5" value="1" step="0.1" 
+                               class="range range-secondary" oninput="updateAmplitudeLabel()">
+                        <div class="w-full flex justify-between text-xs px-2">
+                            <span>0.1</span>
+                            <span>2.5</span>
+                            <span>5</span>
+                        </div>
+                    </div>
+
+                    <!-- Fase -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Fase (π radianes)</span>
+                            <span class="label-text-alt text-accent" id="phase-value">0.0</span>
+                        </label>
+                        <input type="range" id="wave-phase" min="0" max="2" value="0" step="0.1" 
+                               class="range range-accent" oninput="updatePhaseLabel()">
+                        <div class="w-full flex justify-between text-xs px-2">
+                            <span>0</span>
+                            <span>1π</span>
+                            <span>2π</span>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Onda -->
+                    <div class="form-control mb-4">
+                        <label class="label">
+                            <span class="label-text font-semibold">Tipo de Onda</span>
+                        </label>
+                        <select id="wave-type" class="select select-bordered w-full">
+                            <option value="sine">Onda Senoidal</option>
+                            <option value="cosine">Onda Cosenoidal</option>
+                            <option value="square">Onda Cuadrada</option>
+                            <option value="probability">Onda de Probabilidad</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="card-actions justify-end mt-6">
+                        <button class="btn btn-primary btn-block" onclick="generateWave()">
+                            <i class="ti ti-wave-sine"></i>
+                            Generar Onda
+                        </button>
+                        <button class="btn btn-ghost btn-block" onclick="clearWaveVisualization()">
+                            <i class="ti ti-trash"></i>
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de la Onda -->
+            <div class="card bg-base-100 shadow-xl mt-6" id="wave-info-card" style="display: none;">
+                <div class="card-body">
+                    <h3 class="card-title text-sm">
+                        <i class="ti ti-info-circle"></i>
+                        Análisis de la Onda
+                    </h3>
+                    <div class="text-sm" id="wave-info">
+                        <!-- La información se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Visualización (Derecha) -->
+        <div class="lg:col-span-2">
+            <div class="card bg-base-100 shadow-xl h-full">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-chart-line"></i>
+                        Visualización
+                    </h2>
+                    
+                    <div class="wave-visualization" id="wave-visualization">
+                        <div class="text-center">
+                            <i class="ti ti-wave-sine text-6xl text-base-300 mb-4"></i>
+                            <p class="text-base-content/60">
+                                Ajusta los parámetros y presiona "Generar Onda" para ver la visualización
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading-state" class="wave-visualization" style="display: none;">
+                        <div class="text-center">
+                            <span class="loading loading-spinner loading-lg text-primary"></span>
+                            <p class="mt-4">Generando visualización...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="error-state" class="alert alert-error mt-4" style="display: none;">
+                        <i class="ti ti-alert-circle"></i>
+                        <span id="error-message">Error al generar la onda</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Ayuda -->
+    <div class="collapse collapse-plus bg-base-200 mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title text-xl font-medium">
+            <i class="ti ti-help-circle mr-2"></i>
+            ¿Cómo funciona?
+        </div>
+        <div class="collapse-content">
+            <div class="prose max-w-none">
+                <p>Este módulo te permite explorar diferentes tipos de ondas cuánticas:</p>
+                <ul>
+                    <li><strong>Frecuencia:</strong> Controla qué tan rápido oscila la onda</li>
+                    <li><strong>Amplitud:</strong> Determina la altura máxima de la onda</li>
+                    <li><strong>Fase:</strong> Desplaza la onda en el tiempo</li>
+                    <li><strong>Tipos de onda:</strong>
+                        <ul>
+                            <li>Senoidal: Onda suave y continua</li>
+                            <li>Cosenoidal: Similar a la senoidal pero desplazada</li>
+                            <li>Cuadrada: Alterna entre dos valores</li>
+                            <li>Probabilidad: Representa densidad de probabilidad cuántica</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>La visualización incluye análisis en el dominio del tiempo, espacio de fases, espectro de frecuencias y distribución de energía.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/quantum_waves/quantum_waves.js"></script>
+{% endblock %} 

@@ -1,0 +1,225 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Gráficos Matemáticos{% endblock %}
+{% block page_title %}Gráficos Matemáticos{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Estilos para el código */
+    .code-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .code-container pre {
+        margin: 0;
+        background: transparent;
+    }
+    
+    /* Visualización de gráficos */
+    .graph-visualization {
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header con descripción -->
+    <div class="alert alert-info mb-6">
+        <i class="ti ti-chart-line text-xl"></i>
+        <span>Ejecuta scripts de Python para generar visualizaciones matemáticas y científicas. Explora los ejemplos disponibles o crea los tuyos propios.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Panel Izquierdo: Selector y Código -->
+        <div>
+            <!-- Selector de Scripts -->
+            <div class="card bg-base-100 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-files"></i>
+                        Scripts Disponibles
+                    </h2>
+                    
+                    <div id="file-list" class="space-y-2 mb-4">
+                        <!-- Los archivos se cargarán aquí dinámicamente -->
+                        <div class="text-center py-4">
+                            <span class="loading loading-spinner loading-md"></span>
+                            <p class="mt-2 text-sm">Cargando scripts...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="flex gap-2">
+                        <button id="load-btn" class="btn btn-primary flex-1" onclick="loadGraphicsCode()" disabled>
+                            <i class="ti ti-code"></i>
+                            Cargar Código
+                        </button>
+                        <button id="execute-btn" class="btn btn-success flex-1" onclick="executeGraphics()" disabled>
+                            <i class="ti ti-player-play"></i>
+                            Ejecutar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visor de Código -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-code"></i>
+                        Código del Script
+                        <div class="ml-auto">
+                            <button class="btn btn-ghost btn-sm" onclick="copyCode()" title="Copiar código">
+                                <i class="ti ti-copy"></i>
+                            </button>
+                        </div>
+                    </h2>
+                    
+                    <div class="code-container bg-base-200 rounded-lg p-4">
+                        <pre id="code-display" class="text-sm"><code>Selecciona un script para ver su código...</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Visualización -->
+        <div>
+            <div class="card bg-base-100 shadow-xl h-full">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-chart-area"></i>
+                        Visualización
+                    </h2>
+                    
+                    <!-- Estado inicial -->
+                    <div class="graph-visualization" id="visualization-container">
+                        <div class="text-center">
+                            <i class="ti ti-chart-line text-6xl text-base-300 mb-4"></i>
+                            <p class="text-base-content/60">
+                                Selecciona un script y ejecuta para ver la visualización
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de carga -->
+                    <div id="loading-state" class="graph-visualization" style="display: none;">
+                        <div class="text-center">
+                            <span class="loading loading-spinner loading-lg text-primary"></span>
+                            <p class="mt-4">Ejecutando script...</p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de error -->
+                    <div id="error-state" class="alert alert-error" style="display: none;">
+                        <i class="ti ti-alert-circle"></i>
+                        <span id="error-message">Error al ejecutar el script</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Scripts de Ejemplo -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+        <div class="card-body">
+            <h2 class="card-title mb-4">
+                <i class="ti ti-bulb"></i>
+                Ejemplos Incluidos
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card bg-base-200">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="ti ti-3d-cube-sphere text-primary"></i>
+                            Esfera de Bloch
+                        </h3>
+                        <p class="text-sm opacity-70">Visualización 3D de estados cuánticos</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="ti ti-atom-2 text-secondary"></i>
+                            Estructura Atómica
+                        </h3>
+                        <p class="text-sm opacity-70">Modelo de Bohr del átomo de Magnesio</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="ti ti-chart-dots-3 text-accent"></i>
+                            Gráficos 3D
+                        </h3>
+                        <p class="text-sm opacity-70">Superficies y visualizaciones tridimensionales</p>
+                    </div>
+                </div>
+                
+                <div class="card bg-base-200">
+                    <div class="card-body p-4">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="ti ti-chart-line text-info"></i>
+                            Plots Básicos
+                        </h3>
+                        <p class="text-sm opacity-70">Gráficos matemáticos fundamentales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Ayuda -->
+    <div class="collapse collapse-plus bg-base-200 mt-6">
+        <input type="checkbox" />
+        <div class="collapse-title text-xl font-medium">
+            <i class="ti ti-help-circle mr-2"></i>
+            ¿Cómo usar este módulo?
+        </div>
+        <div class="collapse-content">
+            <div class="prose max-w-none">
+                <h3>Pasos básicos:</h3>
+                <ol>
+                    <li>Selecciona un script de la lista de archivos disponibles</li>
+                    <li>Haz clic en "Cargar Código" para ver el contenido del script</li>
+                    <li>Presiona "Ejecutar" para generar la visualización</li>
+                    <li>La imagen resultante aparecerá en el panel de visualización</li>
+                </ol>
+                
+                <h3>Agregar nuevos scripts:</h3>
+                <p>Puedes agregar tus propios scripts Python en la carpeta <code>public/graphs/</code>. 
+                   Asegúrate de que usen matplotlib y guarden la figura con <code>plt.savefig()</code>.</p>
+                
+                <h3>Requisitos del script:</h3>
+                <ul>
+                    <li>Debe ser un archivo Python válido (.py)</li>
+                    <li>Debe generar al menos una figura con matplotlib</li>
+                    <li>No debe requerir entrada del usuario</li>
+                    <li>Las importaciones necesarias deben estar incluidas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para notificaciones -->
+<div class="toast toast-end" id="toast-container" style="display: none;">
+    <div class="alert alert-success">
+        <i class="ti ti-check"></i>
+        <span id="toast-message">Operación completada</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/math_graphics/math_graphics.js"></script>
+{% endblock %} 

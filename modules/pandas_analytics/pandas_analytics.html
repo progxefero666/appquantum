@@ -1,0 +1,220 @@
+{% extends "tailwind.html" %}
+
+{% block title %}AppQuantum - Análisis de Datos{% endblock %}
+{% block page_title %}Análisis de Datos con Pandas{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Tabla de datos compacta */
+    .data-preview {
+        max-height: 300px;
+        overflow: auto;
+        font-size: 0.75rem;
+    }
+    
+    .data-preview table {
+        width: 100%;
+    }
+    
+    .data-preview th,
+    .data-preview td {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--fallback-bc,oklch(var(--bc)/0.2));
+    }
+    
+    /* Visualizaciones */
+    .visualization-container {
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Summary text */
+    .summary-text {
+        max-height: 250px;
+        overflow-y: auto;
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="alert alert-info mb-3">
+        <i class="ti ti-chart-line text-xl"></i>
+        <span>Analiza datasets con Pandas. Genera estadísticas descriptivas, correlaciones, histogramas y más visualizaciones.</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Panel Izquierdo: Controles (3 cols) -->
+        <div class="lg:col-span-3">
+            <!-- Selector de Dataset -->
+            <div class="card bg-base-100 shadow-xl compact">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-database"></i>
+                        Dataset
+                    </h2>
+                    
+                    <div class="form-control">
+                        <label class="label py-1">
+                            <span class="label-text text-sm">Selecciona un dataset</span>
+                        </label>
+                        <select id="dataset-selector" class="select select-bordered select-sm w-full" onchange="loadDataset()">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="iris">Iris Dataset</option>
+                            <option value="tips">Tips Dataset</option>
+                            <option value="titanic">Titanic Dataset</option>
+                            <option value="penguins">Penguins Dataset</option>
+                        </select>
+                    </div>
+                    
+                    <div id="dataset-info" class="mt-2 text-xs opacity-70">
+                        <p>Selecciona un dataset para comenzar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Análisis -->
+            <div class="card bg-base-100 shadow-xl compact mt-3">
+                <div class="card-body">
+                    <h3 class="font-semibold text-sm mb-2">Tipo de Análisis</h3>
+                    
+                    <div class="space-y-1">
+                        <button class="btn btn-sm btn-block btn-outline" onclick="analyzeData('describe')" disabled>
+                            <i class="ti ti-list-details"></i>
+                            Estadísticas Descriptivas
+                        </button>
+                        <button class="btn btn-sm btn-block btn-outline" onclick="analyzeData('correlation')" disabled>
+                            <i class="ti ti-relation-many-to-many"></i>
+                            Matriz de Correlación
+                        </button>
+                        <button class="btn btn-sm btn-block btn-outline" onclick="analyzeData('histogram')" disabled>
+                            <i class="ti ti-chart-histogram"></i>
+                            Histogramas
+                        </button>
+                        <button class="btn btn-sm btn-block btn-outline" onclick="analyzeData('scatter')" disabled>
+                            <i class="ti ti-chart-dots"></i>
+                            Diagrama de Dispersión
+                        </button>
+                        <button class="btn btn-sm btn-block btn-outline" onclick="analyzeData('boxplot')" disabled>
+                            <i class="ti ti-box-multiple"></i>
+                            Diagramas de Caja
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Central: Vista Previa de Datos (4 cols) -->
+        <div class="lg:col-span-4">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-table"></i>
+                        Vista Previa de Datos
+                    </h2>
+                    
+                    <div id="data-preview" class="data-preview bg-base-200 rounded-lg p-2">
+                        <div class="text-center py-8">
+                            <i class="ti ti-table text-4xl text-base-300 mb-2"></i>
+                            <p class="text-sm text-base-content/60">
+                                Los datos se mostrarán aquí
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de Datos -->
+                    <div class="mt-3">
+                        <h3 class="font-semibold text-sm mb-1">Resumen del Dataset</h3>
+                        <div id="data-summary" class="summary-text bg-base-200 rounded p-2 font-mono">
+                            <p class="text-xs opacity-70">Información del dataset aparecerá aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Visualizaciones (5 cols) -->
+        <div class="lg:col-span-5">
+            <div class="card bg-base-100 shadow-xl h-full">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-2">
+                        <i class="ti ti-chart-area"></i>
+                        Visualización
+                    </h2>
+                    
+                    <!-- Contenedor de visualización -->
+                    <div class="visualization-container" id="visualization-container">
+                        <div class="text-center">
+                            <i class="ti ti-chart-dots text-5xl text-base-300 mb-3"></i>
+                            <p class="text-base-content/60">
+                                Selecciona un dataset y tipo de análisis
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Estado de carga -->
+                    <div id="loading-state" class="visualization-container" style="display: none;">
+                        <div class="text-center">
+                            <span class="loading loading-spinner loading-lg text-primary"></span>
+                            <p class="mt-3 text-sm">Generando análisis...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Info del análisis -->
+                    <div id="analysis-info" class="mt-3 p-2 bg-base-200 rounded text-xs">
+                        <p class="opacity-70">La información del análisis aparecerá aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Ayuda Rápida -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+        <div class="card bg-base-200 compact">
+            <div class="card-body">
+                <h4 class="font-semibold text-sm mb-1">
+                    <i class="ti ti-bulb text-warning"></i>
+                    Tip: Correlaciones
+                </h4>
+                <p class="text-xs">Valores cercanos a 1 o -1 indican correlación fuerte. Cerca de 0 significa poca o ninguna correlación.</p>
+            </div>
+        </div>
+        
+        <div class="card bg-base-200 compact">
+            <div class="card-body">
+                <h4 class="font-semibold text-sm mb-1">
+                    <i class="ti ti-info-circle text-info"></i>
+                    Diagramas de Caja
+                </h4>
+                <p class="text-xs">Muestran la mediana, cuartiles y valores atípicos. Útiles para comparar distribuciones.</p>
+            </div>
+        </div>
+        
+        <div class="card bg-base-200 compact">
+            <div class="card-body">
+                <h4 class="font-semibold text-sm mb-1">
+                    <i class="ti ti-chart-histogram text-success"></i>
+                    Histogramas
+                </h4>
+                <p class="text-xs">Visualizan la distribución de frecuencias. Ayudan a identificar patrones y sesgos en los datos.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para notificaciones -->
+<div class="toast toast-end" id="toast-container" style="display: none;">
+    <div class="alert">
+        <span id="toast-message">Mensaje</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/modules/pandas_analytics/pandas_analytics.js"></script>
+{% endblock %} 
